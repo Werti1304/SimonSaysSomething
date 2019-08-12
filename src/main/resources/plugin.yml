@@ -1,0 +1,13 @@
+ name: SimonSaysSomething
+ version: 0.1
+ description: Something
+ author: Werti
+ main: com.werti.simonsayssomething.Main
+ api-version: 1.13
+
+ commands:
+   simon:
+     description: Become Simon!
+     permission: simonsayssomething.admin
+     usage: /simon
+     aliases: simonsayssomething
