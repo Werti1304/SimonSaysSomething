@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class PlatformGenerator
 {
@@ -44,7 +45,7 @@ public class PlatformGenerator
     }
   }
 
-  public PlatformError doPlatformLocation()
+  public PlatformError getPlatformLocation()
   {
     if (!hasSimonEnoughSpace())
     {
@@ -60,12 +61,13 @@ public class PlatformGenerator
 
     if (freeMode)
     {
-      doPlayerLocationsFreeMode(yaw);
+      getPlayerLocationsFreeMode();
     }
     else
     {
-      doPlayerLocationsFixedMode(yaw);
+      getPlayerLocationsFixedMode();
 
+      // Adjusts relative platform to facing of player
       LocationHelper.adjustRelativePositionToPlayer(LocationHelper.getCardinalDirection(simon.getGameLocation()),
               coordsList);
     }
@@ -74,6 +76,8 @@ public class PlatformGenerator
     {
       return PlatformError.PlayerNotEnoughFreeBlocks;
     }
+
+    setGameLocations(yaw);
 
     // Teleport all players to their positions
     for (SimonPlayer simonPlayer : simonGame.getPlayerList())
@@ -85,7 +89,7 @@ public class PlatformGenerator
   }
 
   // Fills coordslist
-  private void doPlayerLocationsFreeMode(float yaw)
+  private void getPlayerLocationsFreeMode()
   {
     for (SimonPlayer simonPlayer : simonGame.getPlayerList())
     {
@@ -93,41 +97,36 @@ public class PlatformGenerator
 
       gameLocation.subtract(simon.getGameLocation());
 
-      Coords gameCoords = new Coords(gameLocation);
-
-      coordsList.add(gameCoords.copyByValue());
-
-      // Set the players position for the game
-      setPlayerGameLocation(yaw, gameCoords.copyByValue(), simonPlayer);
+      coordsList.add(new Coords(gameLocation));
     }
   }
 
   // Fills coordslist
-  private void doPlayerLocationsFixedMode(float yaw)
+  private void getPlayerLocationsFixedMode()
   {
     for (int i = 0; i < 4; i++)
     {
       for (int c = 0; c < 3; c++)
       {
-        // The goldblocks are only generated if players are there for them
-        if (simonGame.getPlayerList().size() >= ((c * 4) + i) + 1)
-        {
-          // Formulas that calculate relative distance of fixed player position relative to Simons position
-          int x = 6 - (c * 2);
-          int y = 0;
-          int z = -3 + i * 2;
+        // Formulas that calculate relative distance of fixed player position relative to Simons position
+        int x = 6 - (c * 2);
+        int y = 0;
+        int z = -3 + i * 2;
 
-          Coords gameCoords = new Coords(x, y, z);
-
-          coordsList.add(gameCoords);
-
-          // Formula to get the player out of the playerlist
-          SimonPlayer simonPlayer = simonGame.getPlayerList().get((c * 4) + i);
-
-          // Set the players position for the game
-          setPlayerGameLocation(yaw, gameCoords.copyByValue(), simonPlayer);
-        }
+        coordsList.add(new Coords(x, y, z));
       }
+    }
+  }
+
+  private void setGameLocations(float yaw)
+  {
+    // Iterate through both all players and available locations
+    Iterator<Coords> availableLocationsIterator = coordsList.iterator();
+    Iterator<SimonPlayer> simonPlayerIterator = simonGame.getPlayerList().iterator();
+
+    while (availableLocationsIterator.hasNext() && simonPlayerIterator.hasNext())
+    {
+      setPlayerGameLocation(yaw, availableLocationsIterator.next(), simonPlayerIterator.next());
     }
   }
 

@@ -137,13 +137,14 @@ public class SimonGame
       simon.sendMessage(StrRes.SimonGameError.InvalidStateForInit);
       return;
     }
-    StrRes.PlatformError platformError = platformGenerator.doPlatformLocation();
+    StrRes.PlatformError platformError = platformGenerator.getPlatformLocation();
 
     if (platformError != StrRes.PlatformError.None)
     {
       simon.sendMessage(platformError.getError());
       return;
     }
+
 
     platformGenerator.saveChangedBlocks();
 

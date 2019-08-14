@@ -11,7 +11,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class GameHandler implements Listener
 {
-  // TODO: Leave/end-mechanic on Server-leave
   @EventHandler
   public void onPlayerQuit(PlayerQuitEvent event)
   {
