@@ -8,6 +8,5 @@
  commands:
    simon:
      description: Become Simon!
-     permission: simonsayssomething.admin
      usage: /simon says help
      aliases: simonsayssomething

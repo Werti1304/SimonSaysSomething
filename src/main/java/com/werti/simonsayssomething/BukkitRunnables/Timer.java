@@ -52,7 +52,7 @@ public class Timer
         }
         else
         {
-          simonGame.broadcast(Stdafx.HighlightColor + timeInSecondsCounter + Stdafx.textColor + "...");
+          simonGame.broadcast(Stdafx.highlightColor + timeInSecondsCounter + Stdafx.textColor + "...");
           timeInSecondsCounter--;
           Timer.this.run();
         }

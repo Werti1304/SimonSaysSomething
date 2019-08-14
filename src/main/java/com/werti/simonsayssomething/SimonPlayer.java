@@ -13,8 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SimonPlayer
 {
@@ -26,11 +26,12 @@ public class SimonPlayer
   private Location gameLocation;
   private SimonGame simonGame;
   private boolean warningTimeoutRunning = false;
-  private ArrayList<Material> oldBlocks = new ArrayList<>(); // Blocks that are remove for the play-area
+  private LinkedHashMap<Material, Byte> oldBlocks = new LinkedHashMap<>(); // Blocks that are remove for the play-area
 
-  public ArrayList<Material> getOldBlocks()
+  public static void sendMessage(CommandSender player, String message)
   {
-    return oldBlocks;
+    player.sendMessage(
+        "[" + Stdafx.highlightColor + prefix + ChatColor.RESET + "] " + Stdafx.textColor + messageColor + message);
   }
 
   private SimonPlayer(Player player, StrRes.PlayerType playerType)
@@ -39,18 +40,10 @@ public class SimonPlayer
     this.playerType = playerType;
   }
 
-  public void playerLeave(boolean silent)
+  public static void sendRawMessage(Player player, String message)
   {
-    if (player.isOnline() && !silent)
-    {
-      sendMessage("You've left the game of " + ChatHelper.getNameInFormat(simonGame.getSimon()) + "!");
-    }
-
-    simonGame.playerLeave(this, silent);
-
-    currentSimonPlayers.remove(this.getPlayer());
-
-    // From this point on, we're waiting for the Java Garbage Trucks to come
+    player.sendMessage(
+        "[" + Stdafx.highlightColor + prefix + ChatColor.RESET + "] " + Stdafx.textColor + messageColor + message);
   }
 
   // Returns a SimonPlayer. If the player isn't a SimonPLayer, the function returns null
@@ -73,10 +66,9 @@ public class SimonPlayer
     return player;
   }
 
-  public static void sendMessage(CommandSender player, String message)
+  public LinkedHashMap<Material, Byte> getOldBlocks()
   {
-    player.sendMessage(
-            "[" + Stdafx.HighlightColor + prefix + ChatColor.RESET + "] " + Stdafx.textColor + messageColor + message);
+    return oldBlocks;
   }
 
   public static void sendMessage(CommandSender player, StrRes.SimonError simonGameError)
@@ -84,10 +76,25 @@ public class SimonPlayer
     sendMessage(player, simonGameError.getError());
   }
 
-  public static void sendRawMessage(Player player, String message)
+  public void playerLeave(boolean silent, boolean forced)
   {
-    player.sendMessage(
-            "[" + Stdafx.HighlightColor + prefix + ChatColor.RESET + "] " + Stdafx.textColor + messageColor + message);
+    if (player.isOnline() && !silent)
+    {
+      if (forced)
+      {
+        sendMessage("You were kicked out of " + ChatHelper.getNameInFormat(simonGame.getSimon()) + "s game!");
+      }
+      else
+      {
+        sendMessage("You've left the game of " + ChatHelper.getNameInFormat(simonGame.getSimon()) + "!");
+      }
+    }
+
+    simonGame.playerLeave(this, silent);
+
+    currentSimonPlayers.remove(this.getPlayer());
+
+    // From this point on, we're waiting for the Java Garbage Trucks to come
   }
 
   public static boolean isASimonPlayer(Player player)

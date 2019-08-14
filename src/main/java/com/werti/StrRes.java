@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 
 import java.util.Objects;
 
-import static com.werti.StrRes.Command.Requirement.*;
+import static com.werti.StrRes.Requirement.*;
 
 // String Resources
 public class StrRes
@@ -13,19 +13,19 @@ public class StrRes
   public enum Command
   {
     // Player Commands
-    StartNewGame("Simon", OutSideGame),
-    InitGame("init", IsSimon),
+    StartNewGame("simon", OutSideGame, "Start a new game"),
+    InitGame("init", IsSimon, "Initialize the game"),
     // Initialize the round TODO: let players join when waiting for start
-    StartGame("start", IsSimon),
+    StartGame("start", IsSimon, "Start the game (After initialization"),
     // Start the round
-    EndGame("end", IsSimon),
-    KickPlayer("kick", IsSimon, "Player"),
-    LeaveGame("leave", IsPlayer),
-    InvitePlayers("invite", IsSimon, "Player"),
-    ListPlayers("list", InAGame),
-    AcceptInvite("accept", OutSideGame, "Player"),    // Accept Invite
-    DeclineInvite("decline", OutSideGame, "Player"), // Decline Invite
-    Help("help", None);
+    EndGame("end", IsSimon, "End the game"),
+    KickPlayer("kick", IsSimon, "Kick a player from your game", "Player"),
+    LeaveGame("leave", IsPlayer, "Leave your game"),
+    InvitePlayers("invite", IsSimon, "Invite a player to your game", "Player"),
+    ListPlayers("list", InAGame, "Shows you a list of the players"),
+    AcceptInvite("accept", OutSideGame, "Accept an invitation", "Player"),    // Accept Invite
+    DeclineInvite("decline", OutSideGame, "Decline an invitation", "Player"), // Decline Invite
+    Help("help", None, "Displays help");
 
     // Admin Commands
     /*AddPlayer("simon admin add <PlayerName>"), //TODO functionality
@@ -37,18 +37,20 @@ public class StrRes
 
     Requirement requirement;
     private String command;
+    private String description;
     private String[] arguments;
 
-    Command(String command, Requirement requirement, String... arguments)
+    Command(String command, Requirement requirement, String description, String... arguments)
     {
       this.command = command;
       this.arguments = arguments;
+      this.description = description;
       this.requirement = requirement;
     }
 
-    public static Command getCommandFromString(String string)
+    public static com.werti.StrRes.Command getCommandFromString(String string)
     {
-      for (Command command : Command.values())
+      for (com.werti.StrRes.Command command : StrRes.Command.values())
       {
         if (Objects.equals(string, command.getCommand()))
         {
@@ -73,17 +75,71 @@ public class StrRes
       return command;
     }
 
-    public enum Requirement
+    public String getDescription()
     {
-      OutSideGame,
-      // Has to be in no game
-      InAGame,
-      // Only has to be in a game no matter who
-      IsSimon,
-      // Has to be in a game and the simon of the game
-      IsPlayer,
-      // has to be in a game and being a player
-      None
+      return description;
+    }
+  }
+
+  public enum AdminCommand
+  {
+    // Player Commands
+    AddPlayer("add", InAGame, "Add a player to your game"),
+    ListGamesGlobal("listgames", None, "List all games"),
+    ListPlayersGlobal("listplayers", None, "List all players"),
+    AdminHelp("help", None, "Display Admin Help");
+
+    // Admin Commands
+    /*AddPlayer("simon admin add <PlayerName>"), //TODO functionality
+    ListGames("simon admin listgames"), //TODO functionality
+    ListAllPlayers("simon admin listallplayers"), //TODO functionality
+    BanPlayer("simon admin ban <PlayerName>"), //TODO functionality
+    RemoveOldItems("simon admin removeold"); //TODO functionality
+    */
+
+    Requirement requirement;
+    private String command;
+    private String description;
+    private String[] arguments;
+
+    AdminCommand(String command, Requirement requirement, String description, String... arguments)
+    {
+      this.command = command;
+      this.arguments = arguments;
+      this.description = description;
+      this.requirement = requirement;
+    }
+
+    public static AdminCommand getCommandFromString(String string)
+    {
+      for (AdminCommand command : AdminCommand.values())
+      {
+        if (Objects.equals(string, command.getCommand()))
+        {
+          return command;
+        }
+      }
+      return null;
+    }
+
+    public Requirement getRequirement()
+    {
+      return requirement;
+    }
+
+    public String[] getArguments()
+    {
+      return arguments;
+    }
+
+    public String getCommand()
+    {
+      return command;
+    }
+
+    public String getDescription()
+    {
+      return description;
     }
   }
 
@@ -158,6 +214,7 @@ public class StrRes
     NotPlayer("You must be a Player of a Simon Says Game to do that!"),
     AlreadyInAGame("You are already part of a Simon Says Game!"),
     IsInGame("You can't use this while being in a Simon Game!"),
+    NotInGame("This player is not in your game!"),
     InvalidCommandSender("You must be a player to use this command!"),
     InvalidStateForInit("Game can't be initialized now!"),
     InvalidStateForStart("Game can't be started now!"),
@@ -185,8 +242,8 @@ public class StrRes
   {
     //All elements of the config by their name and default-value
     SimonNotEnoughFreeBlocks(
-            "There has to be at least space for " + Stdafx.HighlightColor + Stdafx.SimonMaxHeight + ChatColor.GRAY
-            + " blocks above Simon!"),
+        "There has to be at least space for " + Stdafx.highlightColor + Stdafx.SimonMaxHeight + ChatColor.GRAY
+        + " blocks above Simon!"),
     PlayerNotEnoughFreeBlocks("There isn't enough space for all players!"),
     PlayerMaximumReached("The game is full!"),
     None("");
@@ -207,5 +264,18 @@ public class StrRes
   public interface SimonError
   {
     String getError();
+  }
+
+  public enum Requirement
+  {
+    OutSideGame,
+    // Has to be in no game
+    InAGame,
+    // Only has to be in a game no matter who
+    IsSimon,
+    // Has to be in a game and the simon of the game
+    IsPlayer,
+    // has to be in a game and being a player
+    None
   }
 }

@@ -21,7 +21,7 @@ public class GameHandler implements Listener
 
     SimonPlayer simonPlayer = SimonPlayer.get(event.getPlayer());
 
-    simonPlayer.playerLeave(false);
+    simonPlayer.playerLeave(false, false);
   }
 
   @EventHandler

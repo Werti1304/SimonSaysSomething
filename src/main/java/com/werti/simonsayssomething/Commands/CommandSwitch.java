@@ -1,10 +1,12 @@
-package com.werti.simonsayssomething;
+package com.werti.simonsayssomething.Commands;
 
 import com.werti.Stdafx;
 import com.werti.StrRes;
 import com.werti.StrRes.SimonGameError;
 import com.werti.simonsayssomething.BukkitRunnables.Timer;
 import com.werti.simonsayssomething.Helper.ChatHelper;
+import com.werti.simonsayssomething.SimonGame;
+import com.werti.simonsayssomething.SimonPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -82,6 +84,7 @@ public class CommandSwitch
         return;
       case Help:
         displayHelp(simonPlayer);
+        return;
     }
 
     // Commands that need 1 additional argument
@@ -96,26 +99,26 @@ public class CommandSwitch
       case InvitePlayers:
         invitePlayer(simonGameOfPlayer, args[2]);
         break;
+      case KickPlayer:
+        kickPlayer(simonGameOfPlayer, args[2]);
+        return;
     }
-  }
-
-  private static void End(SimonGame simonGameOfPlayer)
-  {
-    simonGameOfPlayer.endGame();
-  }
-
-  private static void leave(SimonPlayer simonPlayer)
-  {
-    simonPlayer.playerLeave(false);
   }
 
   public static void switchCommandsOutsideRound(Player player, StrRes.Command command, String args[])
   {
-    if (command.getRequirement() != StrRes.Command.Requirement.OutSideGame
-        && command.getRequirement() != StrRes.Command.Requirement.None)
+    if (command.getRequirement() != StrRes.Requirement.OutSideGame
+        && command.getRequirement() != StrRes.Requirement.None)
     {
       SimonPlayer.sendMessage(player, SimonGameError.NotASimonSaysPlayer);
       return;
+    }
+
+    switch (command)
+    {
+      case Help:
+        displayHelp(player);
+        return;
     }
 
     // Commands that need 1 additional argument
@@ -132,9 +135,6 @@ public class CommandSwitch
         break;
       case DeclineInvite:
         inviteResponse(player, args[2], false);
-        break;
-      case Help:
-        displayHelp(player);
         break;
       default:
         SimonPlayer.sendMessage(player, SimonGameError.NotASimonSaysPlayer);
@@ -240,14 +240,36 @@ public class CommandSwitch
     }
 
     // Shows number of players in the game
-    sender.sendMessage("There are " + Stdafx.HighlightColor + simonGame.getPlayerList().size() + Stdafx.textColor + "/"
-                       + Stdafx.HighlightColor + Stdafx.PlayerLimit + Stdafx.textColor + " Players in this game!");
+    sender.sendMessage("There are " + Stdafx.highlightColor + simonGame.getPlayerList().size() + Stdafx.textColor + "/"
+                       + Stdafx.highlightColor + Stdafx.PlayerLimit + Stdafx.textColor + " Players in this game!");
 
     sender.sendMessage(getSimonPlayerString(simonGame.getSimon()));
     for (SimonPlayer simonPlayer : simonGame.getPlayerList())
     {
       sender.sendMessage(getSimonPlayerString(simonPlayer));
     }
+  }
+
+  private static void kickPlayer(SimonGame simonGame, String name)
+  {
+    Player invitedPlayer = Stdafx.server.getPlayer(name);
+    SimonPlayer simon = simonGame.getSimon();
+
+    if (invitedPlayer == null)
+    {
+      simon.sendMessage(SimonGameError.PlayerNotFound);
+      return;
+    }
+
+    if (!SimonPlayer.isASimonPlayer(invitedPlayer))
+    {
+      simon.sendMessage(SimonGameError.NotInGame);
+      return;
+    }
+
+    SimonPlayer simonPlayer = SimonPlayer.get(invitedPlayer);
+
+    simonPlayer.playerLeave(false, true);
   }
 
   private static String getSimonPlayerString(SimonPlayer simonPlayer)
@@ -261,14 +283,24 @@ public class CommandSwitch
     SimonPlayer.sendMessage(sender, "/simon says <init/leave/invite/list>");
   }
 
+  private static void End(SimonGame simonGameOfPlayer)
+  {
+    simonGameOfPlayer.endGame();
+  }
+
+  private static void leave(SimonPlayer simonPlayer)
+  {
+    simonPlayer.playerLeave(false, false);
+  }
+
   public static void displayHelp(Player sender)
   {
     SimonPlayer.sendMessage(sender, "All Simon Says commands available to you:");
 
     for (StrRes.Command command : StrRes.Command.values())
     {
-      if (command.getRequirement() == StrRes.Command.Requirement.OutSideGame || command.getRequirement() == StrRes
-          .Command.Requirement.None)
+      if (command.getRequirement() == StrRes.Requirement.OutSideGame
+          || command.getRequirement() == StrRes.Requirement.None)
       {
         SimonPlayer.sendMessage(sender, ChatHelper.getFullCommand(command));
       }
@@ -282,12 +314,12 @@ public class CommandSwitch
 
     for (StrRes.Command command : StrRes.Command.values())
     {
-      StrRes.Command.Requirement requirement = command.getRequirement();
+      StrRes.Requirement requirement = command.getRequirement();
 
-      if (requirement == StrRes.Command.Requirement.InAGame
-          || requirement == StrRes.Command.Requirement.None
-          || (requirement == StrRes.Command.Requirement.IsSimon && simonPlayer.isSimon())
-          || (requirement == StrRes.Command.Requirement.IsPlayer && simonPlayer.isPlayer()))
+      if (requirement == StrRes.Requirement.InAGame
+          || requirement == StrRes.Requirement.None
+          || (requirement == StrRes.Requirement.IsSimon && simonPlayer.isSimon())
+          || (requirement == StrRes.Requirement.IsPlayer && simonPlayer.isPlayer()))
       {
 
         simonPlayer.sendMessage(ChatHelper.getFullCommand(command));

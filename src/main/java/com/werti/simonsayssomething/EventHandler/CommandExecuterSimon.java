@@ -2,10 +2,9 @@ package com.werti.simonsayssomething.EventHandler;
 
 import com.werti.StrRes;
 import com.werti.StrRes.SimonGameError;
-import com.werti.simonsayssomething.CommandSwitch;
+import com.werti.simonsayssomething.Commands.CommandSwitch;
 import com.werti.simonsayssomething.SimonGame;
 import com.werti.simonsayssomething.SimonPlayer;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -15,7 +14,7 @@ import java.util.Objects;
 public class CommandExecuterSimon implements CommandExecutor
 {
   @Override
-  public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args)
+  public boolean onCommand(CommandSender commandSender, org.bukkit.command.Command command, String s, String[] args)
   {
     // Firstly check if the sender is even a Player
     if (!(commandSender instanceof Player))

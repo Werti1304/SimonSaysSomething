@@ -25,7 +25,7 @@ public class ChatHelper
 
   public static String highlightString(String string)
   {
-    return Stdafx.HighlightColor + string + Stdafx.textColor;
+    return Stdafx.highlightColor + string + Stdafx.textColor;
   }
 
   public static String getFullCommandWithoutParams(StrRes.Command command)
@@ -42,17 +42,23 @@ public class ChatHelper
   {
     if (command == StrRes.Command.StartNewGame)
     {
-      return StrRes.Command.StartNewGame.getCommand();
+      return "/" + ChatHelper.highlightString(StrRes.Command.StartNewGame.getCommand());
     }
 
-    StringBuilder commandString = new StringBuilder("/simon says " + ChatHelper.highlightString(command.getCommand()));
+    StringBuilder commandString = new StringBuilder("/" + Stdafx.highlightColor + "simon says " + command.getCommand());
 
     String[] arguments = command.getArguments();
+
+    commandString.append(Stdafx.textColor);
 
     for (String argument : arguments)
     {
       commandString.append(" <").append(argument).append(">");
     }
+
+    commandString.append(" - ");
+
+    commandString.append(command.getDescription());
 
     return commandString.toString();
   }

@@ -81,8 +81,8 @@ public class Main extends JavaPlugin
     Stdafx.MenuNameModifiers = ChatColor.translateAlternateColorCodes('$',
             Stdafx.defConfig.getString(StrRes.ConfigValue.MenuNameModifiers.getName()));
 
-    Stdafx.HighlightColor = ChatColor.translateAlternateColorCodes('$',
-            Stdafx.defConfig.getString(ConfigValue.HighlightColor.getName()));
+    Stdafx.highlightColor = ChatColor.translateAlternateColorCodes('$',
+                                                                   Stdafx.defConfig.getString(ConfigValue.HighlightColor.getName()));
 
     // Gets Material from the config (needs Casting)
     Stdafx.BackgroundMaterial = Material.getMaterial(Stdafx.defConfig.getString(ConfigValue.BackgroundMaterial.getName()));

@@ -3,7 +3,6 @@ package com.werti.simonsayssomething.Helper;
 import com.werti.simonsayssomething.SimonPlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -33,7 +32,7 @@ public class LocationHelper
            && location1.getBlockZ() == location2.getBlockZ();
   }
 
-  public static CardinalDirection getCardinalDirection(Player player)
+  public static CardinalDirection getCardinalDirection(SimonPlayer player)
   {
     return getCardinalDirection(player.getLocation());
   }
@@ -82,9 +81,7 @@ public class LocationHelper
     // (Rotate / Mirror the structure relative to the player's cardinal direction (facing)
     for (Coords coords : coordsList)
     {
-      Coords block = coords.copyByValue();
-
-      adjustRelativePositionToPlayer(cardinalDirection, block);
+      adjustRelativePositionToPlayer(cardinalDirection, coords);
     }
   }
 

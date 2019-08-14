@@ -24,7 +24,7 @@ public class Stdafx
   // Config values
   public static int MenuSlotNumber;
   public static String MenuNameModifiers;
-  public static String HighlightColor;
+  public static String highlightColor;
   public static Material BackgroundMaterial;
   public static int SimonMaxHeight;
   public static int Tickrate;

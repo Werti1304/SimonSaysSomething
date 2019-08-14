@@ -17,7 +17,7 @@ public class SimonGame
   private GameState gameState = GameState.None;
   private PlatformGenerator platformGenerator;
 
-  private boolean freeMode = true;
+  private boolean freeMode = false;
 
   // At this point we're sure that the player is allowed to create a new SimonGame-Game
   public SimonGame(SimonPlayer simon)
@@ -139,6 +139,8 @@ public class SimonGame
     {
       // Adds gameLocation and platform for a new player
       platformGenerator.addNewPlayer(simonPlayer);
+
+      simonPlayer.teleportToGameLocation();
     }
 
     invitedPlayersList.remove(player);
@@ -202,7 +204,7 @@ public class SimonGame
 
     if (!silent)
     {
-      broadcast(ChatHelper.getNameInFormat(simonPlayer) + " has left the game! (" + Stdafx.HighlightColor
+      broadcast(ChatHelper.getNameInFormat(simonPlayer) + " has left the game! (" + Stdafx.highlightColor
                 + playerList.size() + "/" + Stdafx.PlayerLimit + Stdafx.textColor + ")");
     }
   }
@@ -211,7 +213,7 @@ public class SimonGame
   {
     currentSimonGames.remove(this);
 
-    simon.playerLeave(true);
+    simon.playerLeave(true, false);
 
     broadcast("The game has ended!");
 
@@ -220,7 +222,7 @@ public class SimonGame
       // Using a manual loops because lists don't allow changing while being iterated
       for (int i = 0; i < playerList.size(); i++)
       {
-        playerList.get(i).playerLeave(true);
+        playerList.get(i).playerLeave(true, false);
       }
     }
   }
@@ -248,11 +250,11 @@ public class SimonGame
 
     SimonPlayer.sendMessage(player, ChatHelper.getNameInFormat(simon) + " has invited you to their game!");
     SimonPlayer.sendMessage(player,
-            "To accept, type " + Stdafx.HighlightColor
-            + ChatHelper.getFullCommandWithoutParams(StrRes.Command.AcceptInvite) + " " + simon.getName());
+                            "To accept, type " + Stdafx.highlightColor
+                            + ChatHelper.getFullCommandWithoutParams(StrRes.Command.AcceptInvite) + " " + simon.getName());
     SimonPlayer.sendMessage(player,
-            "To decline, type " + Stdafx.HighlightColor
-            + ChatHelper.getFullCommandWithoutParams(StrRes.Command.DeclineInvite) + " " + simon.getName());
+                            "To decline, type " + Stdafx.highlightColor
+                            + ChatHelper.getFullCommandWithoutParams(StrRes.Command.DeclineInvite) + " " + simon.getName());
 
     invitedPlayersList.add(player);
 
