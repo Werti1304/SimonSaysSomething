@@ -23,6 +23,11 @@ public class ChatHelper
     return StrRes.PlayerType.None.getColor() + player.getName() + Stdafx.textColor;
   }
 
+  public static String highlightString(String string)
+  {
+    return Stdafx.HighlightColor + string + Stdafx.textColor;
+  }
+
   public static String getFullCommandWithoutParams(StrRes.Command command)
   {
     if (command == StrRes.Command.StartNewGame)
@@ -40,7 +45,7 @@ public class ChatHelper
       return StrRes.Command.StartNewGame.getCommand();
     }
 
-    StringBuilder commandString = new StringBuilder("/simon says " + command.getCommand());
+    StringBuilder commandString = new StringBuilder("/simon says " + ChatHelper.highlightString(command.getCommand()));
 
     String[] arguments = command.getArguments();
 

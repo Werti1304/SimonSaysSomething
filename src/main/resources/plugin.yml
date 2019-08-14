@@ -9,5 +9,5 @@
    simon:
      description: Become Simon!
      permission: simonsayssomething.admin
-     usage: /simon
+     usage: /simon says help
      aliases: simonsayssomething

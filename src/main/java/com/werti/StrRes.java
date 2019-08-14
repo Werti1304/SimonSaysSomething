@@ -1,5 +1,6 @@
 package com.werti;
 
+import com.werti.simonsayssomething.Helper.ChatHelper;
 import org.bukkit.ChatColor;
 
 import java.util.Objects;
@@ -18,12 +19,13 @@ public class StrRes
     StartGame("start", IsSimon),
     // Start the round
     EndGame("end", IsSimon),
+    KickPlayer("kick", IsSimon, "Player"),
     LeaveGame("leave", IsPlayer),
     InvitePlayers("invite", IsSimon, "Player"),
     ListPlayers("list", InAGame),
-    AcceptInvite("accept", OutSideGame, "Player"),
-    // Accept Invite
-    DeclineInvite("decline", OutSideGame, "Player"); // Decline Invite
+    AcceptInvite("accept", OutSideGame, "Player"),    // Accept Invite
+    DeclineInvite("decline", OutSideGame, "Player"), // Decline Invite
+    Help("help", None);
 
     // Admin Commands
     /*AddPlayer("simon admin add <PlayerName>"), //TODO functionality
@@ -162,7 +164,9 @@ public class StrRes
     PlayerNotFound("I couldn't find this player on your server!"),
     SimonGameNotFound("I couldn't find this game!"),
     CouldntStartGame("Couldn't Start game! Has Simon left?"),
-    LeaveGameAsSimon("If you wish to end the game and thus, leave, type /simon says " + Command.EndGame.getCommand());
+    GameAlreadyStarted("The game has already started!"),
+    LeaveGameAsSimon("If you wish to end the game and thus, leave, type /simon says " + Command.EndGame.getCommand()),
+    MaximumPlayersReached("The maximum of " + ChatHelper.highlightString(Integer.toString(Stdafx.PlayerLimit)));
 
     private String error;
 
@@ -184,6 +188,7 @@ public class StrRes
             "There has to be at least space for " + Stdafx.HighlightColor + Stdafx.SimonMaxHeight + ChatColor.GRAY
             + " blocks above Simon!"),
     PlayerNotEnoughFreeBlocks("There isn't enough space for all players!"),
+    PlayerMaximumReached("The game is full!"),
     None("");
 
     private String error;

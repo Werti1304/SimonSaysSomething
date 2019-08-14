@@ -17,7 +17,7 @@ public class SimonGame
   private GameState gameState = GameState.None;
   private PlatformGenerator platformGenerator;
 
-  private boolean freeMode = false;
+  private boolean freeMode = true;
 
   // At this point we're sure that the player is allowed to create a new SimonGame-Game
   public SimonGame(SimonPlayer simon)
@@ -26,7 +26,7 @@ public class SimonGame
 
     this.simon = simon;
 
-    this.platformGenerator = new PlatformGenerator(this, true);
+    this.platformGenerator = new PlatformGenerator(this, freeMode);
 
     simon.setSimonGame(this);
 
@@ -115,6 +115,18 @@ public class SimonGame
    */
   public SimonPlayer addPlayer(Player player)
   {
+    if (gameState == GameState.InProgress)
+    {
+      simon.sendMessage(StrRes.SimonGameError.GameAlreadyStarted);
+      return null;
+    }
+
+    if (playerList.size() >= Stdafx.PlayerLimit)
+    {
+      simon.sendMessage(StrRes.SimonGameError.MaximumPlayersReached);
+      return null;
+    }
+
     SimonPlayer simonPlayer = SimonPlayer.add(player, StrRes.PlayerType.Player);
 
     // Write for the player that has joined
@@ -122,6 +134,12 @@ public class SimonGame
 
     // Write for the rest of the game
     broadcast(ChatHelper.getNameInFormat(simonPlayer) + " has joined the game!");
+
+    if (gameState == GameState.WaitingForStart)
+    {
+      // Adds gameLocation and platform for a new player
+      platformGenerator.addNewPlayer(simonPlayer);
+    }
 
     invitedPlayersList.remove(player);
     playerList.add(simonPlayer);
@@ -137,18 +155,14 @@ public class SimonGame
       simon.sendMessage(StrRes.SimonGameError.InvalidStateForInit);
       return;
     }
-    StrRes.PlatformError platformError = platformGenerator.getPlatformLocation();
+
+    StrRes.PlatformError platformError = platformGenerator.execute();
 
     if (platformError != StrRes.PlatformError.None)
     {
       simon.sendMessage(platformError.getError());
       return;
     }
-
-
-    platformGenerator.saveChangedBlocks();
-
-    platformGenerator.generatePlatform();
 
     teleportPlayersToGame();
 

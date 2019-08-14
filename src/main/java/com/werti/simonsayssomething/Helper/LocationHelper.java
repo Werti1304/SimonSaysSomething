@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class LocationHelper
 {
@@ -75,7 +76,7 @@ public class LocationHelper
    * @param cardinalDirection direction the Zero-Point is facing (Simon)
    * @param coordsList        List of Coordinates
    */
-  public static void adjustRelativePositionToPlayer(CardinalDirection cardinalDirection, ArrayList<Coords> coordsList)
+  public static void adjustRelativePositionToPlayer(CardinalDirection cardinalDirection, Set<Coords> coordsList)
   {
     // First, set the relative blocks in the right position to the
     // (Rotate / Mirror the structure relative to the player's cardinal direction (facing)
@@ -186,16 +187,25 @@ public class LocationHelper
 
     for (Coords coords : coordsList)
     {
-      Coords block = coords.copyByValue();
-      // Add the locations so the block-position is absolute
-      block.add(startLocation);
-
-      Location blockLocation = new Location(startLocation.getWorld(), block.getX(), block.getY(), block.getZ());
-
-      if (blockLocation.getBlock().getType().isSolid())
+      if (!blockIsFree(startLocation, coords))
       {
         return false;
       }
+    }
+    return true;
+  }
+
+  public static boolean blockIsFree(Location startLocation, Coords coords)
+  {
+    Coords block = coords.copyByValue();
+    // Add the locations so the block-position is absolute
+    block.add(startLocation);
+
+    Location blockLocation = new Location(startLocation.getWorld(), block.getX(), block.getY(), block.getZ());
+
+    if (blockLocation.getBlock().getType().isSolid())
+    {
+      return false;
     }
     return true;
   }

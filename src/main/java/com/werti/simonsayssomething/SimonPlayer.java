@@ -114,6 +114,16 @@ public class SimonPlayer
     }
   }
 
+  public boolean isSimon()
+  {
+    return playerType == StrRes.PlayerType.Simon;
+  }
+
+  public boolean isPlayer()
+  {
+    return playerType == StrRes.PlayerType.Player;
+  }
+
   public Location getLocation()
   {
     return player.getLocation();

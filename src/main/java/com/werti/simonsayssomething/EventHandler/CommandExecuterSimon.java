@@ -2,7 +2,7 @@ package com.werti.simonsayssomething.EventHandler;
 
 import com.werti.StrRes;
 import com.werti.StrRes.SimonGameError;
-import com.werti.simonsayssomething.CommandExecuter;
+import com.werti.simonsayssomething.CommandSwitch;
 import com.werti.simonsayssomething.SimonGame;
 import com.werti.simonsayssomething.SimonPlayer;
 import org.bukkit.command.Command;
@@ -15,7 +15,7 @@ import java.util.Objects;
 public class CommandExecuterSimon implements CommandExecutor
 {
   @Override
-  public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings)
+  public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args)
   {
     // Firstly check if the sender is even a Player
     if (!(commandSender instanceof Player))
@@ -28,7 +28,7 @@ public class CommandExecuterSimon implements CommandExecutor
 
     SimonPlayer playerSender = SimonPlayer.get(player);
 
-    if (strings.length == 0)
+    if (args.length == 0)
     {
       // Check if the player already is a player in a Simon-Game
       if (playerSender != null)
@@ -46,20 +46,30 @@ public class CommandExecuterSimon implements CommandExecutor
       return true;
     }
 
-    if (strings.length == 1 || !Objects.equals(strings[0], "says"))
+    if (args.length == 1 || !Objects.equals(args[0], "says"))
     {
-      CommandExecuter.displaySimonSaysCommandHelp(playerSender.getPlayer());
+      CommandSwitch.displaySimonSaysCommandHelp(playerSender.getPlayer());
+      return true;
+    }
+
+    args[1] = args[1].toLowerCase();
+
+    StrRes.Command strCommand = StrRes.Command.getCommandFromString(args[1]);
+
+    if (strCommand == null)
+    {
+      CommandSwitch.displaySimonSaysCommandHelp(player.getPlayer());
       return true;
     }
 
     if (playerSender == null)
     {
       // Commands that can be used without being already in a game
-      CommandExecuter.switchCommandsOutsideRound(player, strings);
+      CommandSwitch.switchCommandsOutsideRound(player, strCommand, args);
     }
     else
     {
-      CommandExecuter.switchCommandsInRound(playerSender, strings);
+      CommandSwitch.switchCommandsInRound(playerSender, strCommand, args);
     }
     return true;
 
