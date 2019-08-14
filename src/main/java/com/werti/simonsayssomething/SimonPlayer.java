@@ -2,15 +2,18 @@ package com.werti.simonsayssomething;
 
 import com.werti.Stdafx;
 import com.werti.StrRes;
+import com.werti.simonsayssomething.Helper.ChatHelper;
 import com.werti.simonsayssomething.Helper.LocationHelper;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SimonPlayer
@@ -23,11 +26,31 @@ public class SimonPlayer
   private Location gameLocation;
   private SimonGame simonGame;
   private boolean warningTimeoutRunning = false;
+  private ArrayList<Material> oldBlocks = new ArrayList<>(); // Blocks that are remove for the play-area
+
+  public ArrayList<Material> getOldBlocks()
+  {
+    return oldBlocks;
+  }
 
   private SimonPlayer(Player player, StrRes.PlayerType playerType)
   {
     this.player = player;
     this.playerType = playerType;
+  }
+
+  public void playerLeave(boolean silent)
+  {
+    if (player.isOnline() && !silent)
+    {
+      sendMessage("You've left the game of " + ChatHelper.getNameInFormat(simonGame.getSimon()) + "!");
+    }
+
+    simonGame.playerLeave(this, silent);
+
+    currentSimonPlayers.remove(this.getPlayer());
+
+    // From this point on, we're waiting for the Java Garbage Trucks to come
   }
 
   // Returns a SimonPlayer. If the player isn't a SimonPLayer, the function returns null

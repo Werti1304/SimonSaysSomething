@@ -15,6 +15,9 @@ public class SimonGame
   private ArrayList<Player> invitedPlayersList = new ArrayList<>();
   private SimonPlayer simon;
   private GameState gameState = GameState.None;
+  private PlatformGenerator platformGenerator;
+
+  private boolean freeMode = false;
 
   // At this point we're sure that the player is allowed to create a new SimonGame-Game
   public SimonGame(SimonPlayer simon)
@@ -22,6 +25,8 @@ public class SimonGame
     currentSimonGames.add(this);
 
     this.simon = simon;
+
+    this.platformGenerator = new PlatformGenerator(this, true);
 
     simon.setSimonGame(this);
 
@@ -132,15 +137,19 @@ public class SimonGame
       simon.sendMessage(StrRes.SimonGameError.InvalidStateForInit);
       return;
     }
-
-    PlatformGenerator platformGenerator = new PlatformGenerator(this, true);
-    StrRes.PlatformError platformError = platformGenerator.isSuitedLocation();
+    StrRes.PlatformError platformError = platformGenerator.doPlatformLocation();
 
     if (platformError != StrRes.PlatformError.None)
     {
       simon.sendMessage(platformError.getError());
       return;
     }
+
+    platformGenerator.saveChangedBlocks();
+
+    platformGenerator.generatePlatform();
+
+    teleportPlayersToGame();
 
     setGameState(SimonGame.GameState.WaitingForStart);
     simon.sendMessage("Game is ready to start!");
@@ -159,6 +168,46 @@ public class SimonGame
 
 
     broadcast("The Game has started! Simon says listen to me!");
+  }
+
+  /**
+   * WARNING: Only removes SimonPlayer from a game, not the Player from it's status.
+   * To remove him generally, call SimonPlayer.playerLeave
+   *
+   * @param simonPlayer SimonPlayer that leaves the game
+   */
+  void playerLeave(SimonPlayer simonPlayer, boolean silent)
+  {
+    if (gameState == GameState.InProgress || gameState == GameState.WaitingForStart)
+    {
+      platformGenerator.removePlatform(simonPlayer);
+    }
+
+    playerList.remove(simonPlayer);
+
+    if (!silent)
+    {
+      broadcast(ChatHelper.getNameInFormat(simonPlayer) + " has left the game! (" + Stdafx.HighlightColor
+                + playerList.size() + "/" + Stdafx.PlayerLimit + Stdafx.textColor + ")");
+    }
+  }
+
+  public void endGame()
+  {
+    currentSimonGames.remove(this);
+
+    simon.playerLeave(true);
+
+    broadcast("The game has ended!");
+
+    if (!playerList.isEmpty())
+    {
+      // Using a manual loops because lists don't allow changing while being iterated
+      for (int i = 0; i < playerList.size(); i++)
+      {
+        playerList.get(i).playerLeave(true);
+      }
+    }
   }
 
   public void teleportToGame()
@@ -224,9 +273,19 @@ public class SimonGame
     return gameState;
   }
 
+  public PlatformGenerator getPlatformGenerator()
+  {
+    return platformGenerator;
+  }
+
   public void setGameState(GameState gameState)
   {
     this.gameState = gameState;
+  }
+
+  public void setFreeMode(boolean freeMode)
+  {
+    this.freeMode = freeMode;
   }
 
   public enum GameState

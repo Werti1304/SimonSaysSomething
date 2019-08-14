@@ -14,15 +14,13 @@ public class StrRes
     // Player Commands
     StartNewGame("Simon", OutSideGame),
     InitGame("init", IsSimon),
-    // Initialize game (platform)
+    // Initialize the round TODO: let players join when waiting for start
     StartGame("start", IsSimon),
-    // Start Game
-    LeaveGame("leave", InAGame),
-    //TODO functionality
+    // Start the round
+    EndGame("end", IsSimon),
+    LeaveGame("leave", IsPlayer),
     InvitePlayers("invite", IsSimon, "Player"),
-    //TODO functionality
     ListPlayers("list", InAGame),
-    //TODO functionality
     AcceptInvite("accept", OutSideGame, "Player"),
     // Accept Invite
     DeclineInvite("decline", OutSideGame, "Player"); // Decline Invite
@@ -163,7 +161,8 @@ public class StrRes
     InvalidStateForStart("Game can't be started now!"),
     PlayerNotFound("I couldn't find this player on your server!"),
     SimonGameNotFound("I couldn't find this game!"),
-    CouldntStartGame("Couldn't Start game! Has Simon left?");
+    CouldntStartGame("Couldn't Start game! Has Simon left?"),
+    LeaveGameAsSimon("If you wish to end the game and thus, leave, type /simon says " + Command.EndGame.getCommand());
 
     private String error;
 

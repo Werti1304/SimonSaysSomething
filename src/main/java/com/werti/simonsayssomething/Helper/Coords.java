@@ -19,9 +19,11 @@ public class Coords
     set(location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
 
-  public void add(Location location)
+  public Coords add(Location location)
   {
     add(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+
+    return this;
   }
 
   public void add(Coords coords)
@@ -90,8 +92,13 @@ public class Coords
 
   public void subtract(Coords coords)
   {
-    this.x -= coords.getX();
-    this.y -= coords.getY();
-    this.z -= coords.getZ();
+    subtract(coords.getX(), coords.getY(), coords.getZ());
+  }
+
+  public void subtract(int x, int y, int z)
+  {
+    this.x -= x;
+    this.y -= y;
+    this.z -= z;
   }
 }

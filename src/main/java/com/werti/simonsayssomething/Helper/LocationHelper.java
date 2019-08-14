@@ -69,16 +69,29 @@ public class LocationHelper
     return CardinalDirection.NORTH;
   }
 
-  public static void adjustRelativePositionToPlayer(CardinalDirection cardinalDirection, ArrayList<Coords> blockList)
+  /**
+   * One-way: can only be used one time
+   *
+   * @param cardinalDirection direction the Zero-Point is facing (Simon)
+   * @param coordsList        List of Coordinates
+   */
+  public static void adjustRelativePositionToPlayer(CardinalDirection cardinalDirection, ArrayList<Coords> coordsList)
   {
     // First, set the relative blocks in the right position to the
     // (Rotate / Mirror the structure relative to the player's cardinal direction (facing)
-    for (Coords block : blockList)
+    for (Coords coords : coordsList)
     {
+      Coords block = coords.copyByValue();
+
       adjustRelativePositionToPlayer(cardinalDirection, block);
     }
   }
 
+  /**
+   * One-way: can only be used one time
+   * @param cardinalDirection direction the Zero-Point is facing (Simon)
+   * @param block block that needs to be adjusted
+   */
   public static void adjustRelativePositionToPlayer(CardinalDirection cardinalDirection, Coords block)
   {
     switch (cardinalDirection)
@@ -120,20 +133,33 @@ public class LocationHelper
     player.teleport(teleportLocation);
   }
 
-  public static void setBlocks(Location startLocation, ArrayList<Coords> blockList, Material material)
+  public static void setBlocks(Location startLocation, ArrayList<Coords> coordsList, Material material)
   {
-    CardinalDirection cardinalDirection = getCardinalDirection(startLocation);
-
-    adjustRelativePositionToPlayer(cardinalDirection, blockList);
-
-    for (Coords block : blockList)
+    for (Coords coords : coordsList)
     {
-      // Add the locations so the block-position is absolute
-      block.add(startLocation);
-
-      // Set material of block
-      new Location(startLocation.getWorld(), block.getX(), block.getY(), block.getZ()).getBlock().setType(material);
+      setBlock(startLocation, coords, material, true);
     }
+  }
+
+  public static void setBlock(Location startLocation, Location location, Material material)
+  {
+    // Set material of block
+    location.getBlock().setType(material);
+  }
+
+  public static void setBlock(Location startLocation, Coords coords, Material material, boolean relativeCoords)
+  {
+    Coords absoluteCoords = coords.copyByValue();
+
+    // Get absolute Coords
+    if (relativeCoords)
+    {
+      coords.add(startLocation);
+    }
+
+    // Set the material to the relative coords
+    setBlock(startLocation,
+            new Location(startLocation.getWorld(), absoluteCoords.getX(), absoluteCoords.getY(), absoluteCoords.getZ()), material);
   }
 
   public static float mirrorYaw(float yaw)
@@ -151,28 +177,26 @@ public class LocationHelper
 
   /**
    * @param startLocation Absolute position of the Startlocation
-   * @param blockList     list of block-positions relative to the startLocation
+   * @param coordsList     list of block-positions relative to the startLocation
    * @return Whether all blocks are free (Material.Air)
    */
-  public static boolean blocksAreFree(Location startLocation, ArrayList<Coords> blockList)
+  public static boolean blocksAreFree(Location startLocation, ArrayList<Coords> coordsList)
   {
     CardinalDirection cardinalDirection = getCardinalDirection(startLocation);
 
-    adjustRelativePositionToPlayer(cardinalDirection, blockList);
-
-    for (Coords block : blockList)
+    for (Coords coords : coordsList)
     {
+      Coords block = coords.copyByValue();
       // Add the locations so the block-position is absolute
       block.add(startLocation);
 
       Location blockLocation = new Location(startLocation.getWorld(), block.getX(), block.getY(), block.getZ());
 
-      if (blockLocation.getBlock().getType() != Material.AIR)
+      if (blockLocation.getBlock().getType().isSolid())
       {
         return false;
       }
     }
-
     return true;
   }
 

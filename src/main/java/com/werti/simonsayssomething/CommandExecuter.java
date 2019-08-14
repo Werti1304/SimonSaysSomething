@@ -23,7 +23,7 @@ public class CommandExecuter
       {
         isSimon = true;
       }
-      if (simonGame.getPlayerList().contains(player) && !isSimon)
+      else if (simonGame.getPlayerList().contains(player))
       {
         isPlayer = true;
       }
@@ -39,44 +39,34 @@ public class CommandExecuter
       return;
     }
 
-    if (command.getRequirement() == StrRes.Command.Requirement.OutSideGame)
+    switch (command.getRequirement())
     {
-      player.sendMessage(SimonGameError.IsInGame);
-      return;
-    }
-
-
-    // Check if the player is the right type
-    switch (command)
-    {
-      // Doesn't need any type
-      case ListPlayers:
+      case None:
+      case InAGame:
         break;
-      case StartGame:
-      case InitGame:
-      case InvitePlayers:
+      case OutSideGame:
+        player.sendMessage(SimonGameError.IsInGame);
+        return;
+      case IsSimon:
         if (!isSimon)
         {
           player.sendMessage(SimonGameError.NotSimon);
           return;
         }
         break;
-      case LeaveGame:
+      case IsPlayer:
         if (!isPlayer)
         {
           player.sendMessage(SimonGameError.NotPlayer);
+
+          // Special message when Simon tries to leave the game
+          if (isSimon && command == StrRes.Command.LeaveGame)
+          {
+            player.sendMessage(SimonGameError.LeaveGameAsSimon);
+          }
           return;
         }
-      case AcceptInvite:
-      case DeclineInvite:
-        if (isPlayer || isSimon)
-        {
-          player.sendMessage(SimonGameError.AlreadyInAGame);
-        }
         break;
-      default:
-        player.sendMessage("Command " + args[1] + " is not implemented yet!");
-        return;
     }
 
     // Get Game of this player
@@ -90,6 +80,12 @@ public class CommandExecuter
         return;
       case StartGame:
         start(simonGameOfPlayer);
+        return;
+      case LeaveGame:
+        leave(player);
+        return;
+      case EndGame:
+        End(simonGameOfPlayer);
         return;
       case ListPlayers:
         listPlayers(simonGameOfPlayer, player);
@@ -109,6 +105,16 @@ public class CommandExecuter
         invitePlayer(simonGameOfPlayer, args[2]);
         break;
     }
+  }
+
+  private static void End(SimonGame simonGameOfPlayer)
+  {
+    simonGameOfPlayer.endGame();
+  }
+
+  private static void leave(SimonPlayer simonPlayer)
+  {
+    simonPlayer.playerLeave(false);
   }
 
   public static void switchCommandsOutsideRound(Player player, String args[])
@@ -163,6 +169,7 @@ public class CommandExecuter
     if (player == null)
     {
       SimonPlayer.sendMessage(targetPlayer, StrRes.SimonGameError.SimonGameNotFound);
+      return;
     }
 
     SimonGame simonGame = SimonGame.getGameByPlayer(player);
@@ -170,6 +177,7 @@ public class CommandExecuter
     if (simonGame == null)
     {
       SimonPlayer.sendMessage(targetPlayer, SimonGameError.SimonGameNotFound);
+      return;
     }
 
     // Check if the player even has an invite

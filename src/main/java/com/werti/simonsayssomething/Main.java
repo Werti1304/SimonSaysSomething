@@ -44,6 +44,16 @@ public class Main extends JavaPlugin
   @Override
   public void onDisable()
   {
+    // Only replace the platforms with the original blocks as the server is plugin is being disabled anyway
+    for (SimonGame simonGame : SimonGame.getCurrentSimonGames())
+    {
+      simonGame.getPlatformGenerator().removePlatform(simonGame.getSimon());
+
+      for (SimonPlayer simonPlayer : simonGame.getPlayerList())
+      {
+        simonGame.getPlatformGenerator().removePlatform(simonPlayer);
+      }
+    }
   }
 
   // Initialization method, can only be used in onEnable()
