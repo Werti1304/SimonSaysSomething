@@ -10,7 +10,7 @@ import static com.werti.StrRes.Requirement.*;
 // String Resources
 public class StrRes
 {
-  public enum Command
+  public enum Command implements SimonCommand
   {
     // Player Commands
     StartNewGame("simon", OutSideGame, "Start a new game"),
@@ -26,14 +26,6 @@ public class StrRes
     AcceptInvite("accept", OutSideGame, "Accept an invitation", "Player"),    // Accept Invite
     DeclineInvite("decline", OutSideGame, "Decline an invitation", "Player"), // Decline Invite
     Help("help", None, "Displays help");
-
-    // Admin Commands
-    /*AddPlayer("simon admin add <PlayerName>"), //TODO functionality
-    ListGames("simon admin listgames"), //TODO functionality
-    ListAllPlayers("simon admin listallplayers"), //TODO functionality
-    BanPlayer("simon admin ban <PlayerName>"), //TODO functionality
-    RemoveOldItems("simon admin removeold"); //TODO functionality
-    */
 
     Requirement requirement;
     private String command;
@@ -81,13 +73,13 @@ public class StrRes
     }
   }
 
-  public enum AdminCommand
+  // Admin-Commands are always tried first when an admin executes a command
+  public enum AdminCommand implements SimonCommand
   {
     // Player Commands
-    AddPlayer("add", InAGame, "Add a player to your game"),
+    AddPlayer("add", InAGame, "Add a player to your game", "Player"),
     ListGamesGlobal("listgames", None, "List all games"),
-    ListPlayersGlobal("listplayers", None, "List all players"),
-    AdminHelp("help", None, "Display Admin Help");
+    ListPlayersGlobal("listplayers", None, "List all players");
 
     // Admin Commands
     /*AddPlayer("simon admin add <PlayerName>"), //TODO functionality
@@ -264,6 +256,17 @@ public class StrRes
   public interface SimonError
   {
     String getError();
+  }
+
+  public interface SimonCommand
+  {
+    public Requirement getRequirement();
+
+    public String[] getArguments();
+
+    public String getCommand();
+
+    public String getDescription();
   }
 
   public enum Requirement

@@ -197,7 +197,7 @@ public class SimonGame
   {
     if (gameState == GameState.InProgress || gameState == GameState.WaitingForStart)
     {
-      platformGenerator.removePlatform(simonPlayer);
+      platformGenerator.removePlayer(simonPlayer);
     }
 
     playerList.remove(simonPlayer);

@@ -34,7 +34,7 @@ public class PlatformGenerator
     initCheckList();
   }
 
-  void removePlatform(SimonPlayer simonPlayer)
+  void removePlayer(SimonPlayer simonPlayer)
   {
     // Check if blocks were even changed
     if (simonPlayer.getOldBlocks().isEmpty())
@@ -44,6 +44,8 @@ public class PlatformGenerator
 
     Location platformLocation = simonPlayer.getGameLocation().getBlock().getLocation();
     platformLocation.subtract(0, 1, 0);
+
+    removeFromMap(simonPlayer);
 
     for (Material oldBlockMaterial : simonPlayer.getOldBlocks().keySet())
     {
@@ -120,6 +122,19 @@ public class PlatformGenerator
     coordsCheckList.add(new Coords(0, 1, 1));
 
     coordsCheckList.add(new Coords(0, 2, 0));
+  }
+
+  private boolean removeFromMap(SimonPlayer simonPlayer)
+  {
+    for (Coords coord : coordsMap.keySet())
+    {
+      if (coordsMap.get(coord) == simonPlayer)
+      {
+        coordsMap.replace(coord, null);
+        return true;
+      }
+    }
+    return false;
   }
 
   @NotNull

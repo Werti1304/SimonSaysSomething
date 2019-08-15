@@ -3,6 +3,7 @@ package com.werti.simonsayssomething.Helper;
 import com.werti.Stdafx;
 import com.werti.StrRes;
 import com.werti.simonsayssomething.SimonPlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class ChatHelper
@@ -45,9 +46,19 @@ public class ChatHelper
       return "/" + ChatHelper.highlightString(StrRes.Command.StartNewGame.getCommand());
     }
 
-    StringBuilder commandString = new StringBuilder("/" + Stdafx.highlightColor + "simon says " + command.getCommand());
+    return "/" + Stdafx.highlightColor + getCommand(command);
+  }
 
-    String[] arguments = command.getArguments();
+  public static String getFullCommand(StrRes.AdminCommand command)
+  {
+    return "/" + ChatColor.RED + getCommand(command);
+  }
+
+  private static String getCommand(StrRes.SimonCommand simonCommand)
+  {
+    StringBuilder commandString = new StringBuilder("simon says " + simonCommand.getCommand());
+
+    String[] arguments = simonCommand.getArguments();
 
     commandString.append(Stdafx.textColor);
 
@@ -58,7 +69,7 @@ public class ChatHelper
 
     commandString.append(" - ");
 
-    commandString.append(command.getDescription());
+    commandString.append(simonCommand.getDescription());
 
     return commandString.toString();
   }

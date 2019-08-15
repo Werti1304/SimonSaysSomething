@@ -31,6 +31,10 @@ public class Stdafx
   public static int PlayerLimit;
 
   public static String textColor = ChatColor.RESET.toString() + ChatColor.GRAY;
+  public static String adminTextColor = ChatColor.RED.toString();
+  public static String errorTextColor = ChatColor.DARK_RED.toString();
+
   public static int InviteTimeout = 30; // In seconds
   public static String defaultCommand = "simon says";
+  public static String adminPermission = "SimonSaysSomething.Admin";
 }

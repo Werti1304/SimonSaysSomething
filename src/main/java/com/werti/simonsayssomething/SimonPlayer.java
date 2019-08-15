@@ -26,6 +26,7 @@ public class SimonPlayer
   private Location gameLocation;
   private SimonGame simonGame;
   private boolean warningTimeoutRunning = false;
+  private boolean admin;
   private LinkedHashMap<Material, Byte> oldBlocks = new LinkedHashMap<>(); // Blocks that are remove for the play-area
 
   public static void sendMessage(CommandSender player, String message)
@@ -38,6 +39,8 @@ public class SimonPlayer
   {
     this.player = player;
     this.playerType = playerType;
+
+    admin = isAdmin(player);
   }
 
   public static void sendRawMessage(Player player, String message)
@@ -73,7 +76,7 @@ public class SimonPlayer
 
   public static void sendMessage(CommandSender player, StrRes.SimonError simonGameError)
   {
-    sendMessage(player, simonGameError.getError());
+    sendMessage(player, Stdafx.errorTextColor + simonGameError.getError());
   }
 
   public void playerLeave(boolean silent, boolean forced)
@@ -119,6 +122,16 @@ public class SimonPlayer
     {
       teleport(gameLocation);
     }
+  }
+
+  public static HashMap<Player, SimonPlayer> getCurrentSimonPlayers()
+  {
+    return currentSimonPlayers;
+  }
+
+  public static boolean isAdmin(Player player)
+  {
+    return player.hasPermission(Stdafx.adminPermission);
   }
 
   public boolean isSimon()
@@ -211,5 +224,10 @@ public class SimonPlayer
   public boolean isWarningTimeoutRunning()
   {
     return warningTimeoutRunning;
+  }
+
+  public boolean isAdmin()
+  {
+    return admin;
   }
 }

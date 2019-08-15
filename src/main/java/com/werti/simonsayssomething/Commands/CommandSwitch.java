@@ -280,7 +280,7 @@ public class CommandSwitch
 
   public static void displaySimonSaysCommandHelp(Player sender)
   {
-    SimonPlayer.sendMessage(sender, "/simon says <init/leave/invite/list>");
+    SimonPlayer.sendMessage(sender, "/simon says help");
   }
 
   private static void End(SimonGame simonGameOfPlayer)
@@ -305,6 +305,18 @@ public class CommandSwitch
         SimonPlayer.sendMessage(sender, ChatHelper.getFullCommand(command));
       }
     }
+
+    if (SimonPlayer.isAdmin(sender))
+    {
+      for (StrRes.AdminCommand command : StrRes.AdminCommand.values())
+      {
+        if (command.getRequirement() == StrRes.Requirement.OutSideGame
+            || command.getRequirement() == StrRes.Requirement.None)
+        {
+          SimonPlayer.sendMessage(sender, ChatHelper.getFullCommand(command));
+        }
+      }
+    }
   }
 
   public static void displayHelp(SimonPlayer simonPlayer)
@@ -323,6 +335,22 @@ public class CommandSwitch
       {
 
         simonPlayer.sendMessage(ChatHelper.getFullCommand(command));
+      }
+    }
+
+    if (simonPlayer.isAdmin())
+    {
+      for (StrRes.AdminCommand command : StrRes.AdminCommand.values())
+      {
+        StrRes.Requirement requirement = command.getRequirement();
+
+        if (requirement == StrRes.Requirement.InAGame
+            || requirement == StrRes.Requirement.None
+            || (requirement == StrRes.Requirement.IsSimon && simonPlayer.isSimon())
+            || (requirement == StrRes.Requirement.IsPlayer && simonPlayer.isPlayer()))
+        {
+          simonPlayer.sendMessage(ChatHelper.getFullCommand(command));
+        }
       }
     }
   }

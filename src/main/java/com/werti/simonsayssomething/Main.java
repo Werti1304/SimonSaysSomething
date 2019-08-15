@@ -47,11 +47,11 @@ public class Main extends JavaPlugin
     // Only replace the platforms with the original blocks as the server is plugin is being disabled anyway
     for (SimonGame simonGame : SimonGame.getCurrentSimonGames())
     {
-      simonGame.getPlatformGenerator().removePlatform(simonGame.getSimon());
+      simonGame.getPlatformGenerator().removePlayer(simonGame.getSimon());
 
       for (SimonPlayer simonPlayer : simonGame.getPlayerList())
       {
-        simonGame.getPlatformGenerator().removePlatform(simonPlayer);
+        simonGame.getPlatformGenerator().removePlayer(simonPlayer);
       }
     }
   }
