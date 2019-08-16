@@ -2,6 +2,7 @@ package com.werti.simonsayssomething.Commands;
 
 import com.werti.Stdafx;
 import com.werti.StrRes;
+import com.werti.simonsayssomething.EventHandler.CommandExecuterSimon;
 import com.werti.simonsayssomething.Helper.ChatHelper;
 import com.werti.simonsayssomething.SimonGame;
 import com.werti.simonsayssomething.SimonPlayer;
@@ -25,6 +26,13 @@ public class CommandSwitchAdmin
     }
     else
     {
+      // If a started game is needed, but isn't there, a game is started
+      if (command.getRequirement() == StrRes.Requirement.InAGame)
+      {
+        CommandSwitch.startNewGame(player);
+        new CommandExecuterSimon().onCommand(player, null, null, args);
+        return true;
+      }
       return commandSwitchOutside(player, command, args);
     }
 

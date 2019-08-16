@@ -142,6 +142,16 @@ public class CommandSwitch
     }
   }
 
+  public static void startNewGame(Player player)
+  {
+    // Make him into a Simon
+    SimonPlayer newSimon = SimonPlayer.add(player, StrRes.PlayerType.Simon);
+
+    // Then start a new game with him as simon
+    // Todo: Add new permission to start a new game
+    SimonGame simonGame = new SimonGame(newSimon);
+  }
+
   /**
    * @param targetPlayer Player that responds to invite
    * @param name         Name of player he wants to accept/decline

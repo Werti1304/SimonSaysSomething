@@ -138,7 +138,7 @@ public class SimonGame
     if (gameState == GameState.WaitingForStart)
     {
       // Adds gameLocation and platform for a new player
-      platformGenerator.addNewPlayer(simonPlayer);
+      platformGenerator.addPlayer(simonPlayer);
 
       simonPlayer.teleportToGameLocation();
     }

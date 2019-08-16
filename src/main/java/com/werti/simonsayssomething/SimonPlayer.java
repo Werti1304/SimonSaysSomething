@@ -27,7 +27,7 @@ public class SimonPlayer
   private SimonGame simonGame;
   private boolean warningTimeoutRunning = false;
   private boolean admin;
-  private LinkedHashMap<Material, Byte> oldBlocks = new LinkedHashMap<>(); // Blocks that are remove for the play-area
+  private LinkedHashMap<Material, Byte> savedBlocks = new LinkedHashMap<>(); // Blocks that are remove for the play-area
 
   public static void sendMessage(CommandSender player, String message)
   {
@@ -69,9 +69,9 @@ public class SimonPlayer
     return player;
   }
 
-  public LinkedHashMap<Material, Byte> getOldBlocks()
+  public LinkedHashMap<Material, Byte> getSavedBlocks()
   {
-    return oldBlocks;
+    return savedBlocks;
   }
 
   public static void sendMessage(CommandSender player, StrRes.SimonError simonGameError)

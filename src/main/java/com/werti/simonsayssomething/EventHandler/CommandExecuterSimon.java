@@ -4,7 +4,6 @@ import com.werti.StrRes;
 import com.werti.StrRes.SimonGameError;
 import com.werti.simonsayssomething.Commands.CommandSwitch;
 import com.werti.simonsayssomething.Commands.CommandSwitchAdmin;
-import com.werti.simonsayssomething.SimonGame;
 import com.werti.simonsayssomething.SimonPlayer;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -36,19 +35,14 @@ public class CommandExecuterSimon implements CommandExecutor
         simonPlayer.sendMessage(SimonGameError.AlreadyInAGame);
         return true;
       }
+      CommandSwitch.startNewGame(player);
 
-      // Make him into a Simon
-      SimonPlayer newSimon = SimonPlayer.add(player, StrRes.PlayerType.Simon);
-
-      // Then start a new game with him as simon
-      // Todo: Add new permission to start a new game
-      SimonGame simonGame = new SimonGame(newSimon);
       return true;
     }
 
     if (args.length == 1 || !Objects.equals(args[0], "says"))
     {
-      CommandSwitch.displaySimonSaysCommandHelp(simonPlayer.getPlayer());
+      CommandSwitch.displaySimonSaysCommandHelp(player);
       return true;
     }
 
@@ -60,13 +54,13 @@ public class CommandExecuterSimon implements CommandExecutor
 
       if (adminCommand != null)
       {
-        if (!CommandSwitchAdmin.commandSwitch(player, adminCommand, args))
+        if (CommandSwitchAdmin.commandSwitch(player, adminCommand, args))
         {
-          CommandSwitch.displaySimonSaysCommandHelp(player);
           return true;
         }
         else
         {
+          CommandSwitch.displaySimonSaysCommandHelp(player);
           return true;
         }
       }
@@ -82,6 +76,16 @@ public class CommandExecuterSimon implements CommandExecutor
 
     if (simonPlayer == null)
     {
+      // Start a new game automatically when there is no game yet
+      switch (strCommand)
+      {
+        case InitGame:
+        case InvitePlayers:
+          CommandSwitch.startNewGame(player);
+          onCommand(commandSender, command, s, args);
+          return true;
+      }
+
       // Commands that can be used without being already in a game
       CommandSwitch.switchCommandsOutsideRound(player, strCommand, args);
     }

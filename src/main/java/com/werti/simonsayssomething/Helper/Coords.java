@@ -3,7 +3,7 @@ package com.werti.simonsayssomething.Helper;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-public class Coords
+public class Coords extends Object implements Cloneable
 {
   private int x;
   private int y;
@@ -50,7 +50,8 @@ public class Coords
     this.z = z;
   }
 
-  public Coords copyByValue()
+  @Override
+  public Coords clone()
   {
     return new Coords(x, y, z);
   }

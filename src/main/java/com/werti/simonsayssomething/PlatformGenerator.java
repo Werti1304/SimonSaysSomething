@@ -8,11 +8,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.ListIterator;
 
 public class PlatformGenerator
 {
@@ -20,7 +17,6 @@ public class PlatformGenerator
   private SimonPlayer simon;
   // When set, the players may choose their own locations to play
   private boolean freeMode;
-  LinkedHashMap<Coords, SimonPlayer> coordsMap = new LinkedHashMap<>();
   // Checklist that will be used to check coordinates
   ArrayList<Coords> coordsCheckList = new ArrayList<>();
 
@@ -37,7 +33,7 @@ public class PlatformGenerator
   void removePlayer(SimonPlayer simonPlayer)
   {
     // Check if blocks were even changed
-    if (simonPlayer.getOldBlocks().isEmpty())
+    if (simonPlayer.getSavedBlocks().isEmpty())
     {
       return;
     }
@@ -45,12 +41,10 @@ public class PlatformGenerator
     Location platformLocation = simonPlayer.getGameLocation().getBlock().getLocation();
     platformLocation.subtract(0, 1, 0);
 
-    removeFromMap(simonPlayer);
-
-    for (Material oldBlockMaterial : simonPlayer.getOldBlocks().keySet())
+    for (Material oldBlockMaterial : simonPlayer.getSavedBlocks().keySet())
     {
       platformLocation.getBlock().setType(oldBlockMaterial);
-      platformLocation.getBlock().setData(simonPlayer.getOldBlocks().get(oldBlockMaterial));
+      platformLocation.getBlock().setData(simonPlayer.getSavedBlocks().get(oldBlockMaterial));
 
       platformLocation.add(0, 1, 0);
     }
@@ -68,23 +62,26 @@ public class PlatformGenerator
 
     setSimonGameLocation();
 
-    PlatformError error = fillCoordsMap();
+    saveChangedBlock(simon);
 
-    if (fillCoordsMap() != PlatformError.None)
+    // Generates the platform for simon
+    setPlayerBlocks(simon.getGameLocation(), Material.DIAMOND_BLOCK);
+
+    // Adds platform and locations for every player currently in the game
+    for (SimonPlayer simonPlayer : simonGame.getPlayerList())
     {
-      return error;
+      PlatformError error = addPlayer(simonPlayer);
+
+      if (error != PlatformError.None)
+      {
+        return error;
+      }
     }
-
-    setGameLocations();
-
-    saveChangedBlocks();
-
-    generatePlatform();
 
     return PlatformError.None;
   }
 
-  PlatformError addNewPlayer(SimonPlayer simonPlayer)
+  PlatformError addPlayer(SimonPlayer simonPlayer)
   {
     Coords playerCoords;
 
@@ -95,10 +92,12 @@ public class PlatformGenerator
       return PlatformError.PlayerMaximumReached;
     }
 
-    // For now, the player will, regardless of position, have its gameLocation facing the opposite direction of simon
-    float yaw = LocationHelper.mirrorYaw(simon.getGameLocation().getYaw());
+    if (!playerHasSpace(playerCoords))
+    {
+      return PlatformError.PlayerNotEnoughFreeBlocks;
+    }
 
-    setPlayerGameLocation(yaw, playerCoords, simonPlayer);
+    setPlayerGameLocation(playerCoords, simonPlayer);
 
     saveChangedBlock(simonPlayer);
 
@@ -109,7 +108,7 @@ public class PlatformGenerator
 
   private void initCheckList()
   {
-    // No loops for better readability
+    // No loops for better readability (this time!)
 
     coordsCheckList.add(new Coords(0, 0, 1));
     coordsCheckList.add(new Coords(1, 0, 0));
@@ -124,17 +123,39 @@ public class PlatformGenerator
     coordsCheckList.add(new Coords(0, 2, 0));
   }
 
-  private boolean removeFromMap(SimonPlayer simonPlayer)
+  private Coords getNextFreePlatform(SimonPlayer simonPlayer)
   {
-    for (Coords coord : coordsMap.keySet())
+    if (freeMode)
     {
-      if (coordsMap.get(coord) == simonPlayer)
-      {
-        coordsMap.replace(coord, null);
-        return true;
-      }
+      return new Coords(
+          simonPlayer
+              .getLocation()
+              .getBlock()
+              .getLocation()
+              .add(0.5, 0, 0.5)
+              .subtract(simon.getGameLocation()));
     }
-    return false;
+    else
+    {
+      int playerCount = simonGame.getPlayerList().size() - 1;
+
+      int x = 6 - ((int) Math.floor(playerCount / 4) * 2);
+      int y = 0;
+      int z = -3 + ((int) Math.floor(playerCount % 4) * 2);
+
+      Coords coords = new Coords(x, y, z);
+
+      LocationHelper.CardinalDirection cardinalDirection = LocationHelper.getCardinalDirection(simon.getGameLocation().getYaw());
+
+      LocationHelper.adjustRelativePositionToPlayer(cardinalDirection, coords);
+
+      if (x < 0)
+      {
+        return null;
+      }
+
+      return coords;
+    }
   }
 
   @NotNull
@@ -147,147 +168,28 @@ public class PlatformGenerator
     return new Coords(gameLocation);
   }
 
-  @Nullable
-  private Coords getNextFreePlatform(SimonPlayer simonPlayer)
-  {
-    if (freeMode)
-    {
-      return getPlayerLocationFreeMode(simonPlayer);
-    }
-    else
-    {
-      for (Coords coords : coordsMap.keySet())
-      {
-        if (coordsMap.get(coords) == null)
-        {
-          coordsMap.replace(coords, simonPlayer);
-          return coords;
-        }
-      }
-      return null;
-    }
-  }
-
-  private PlatformError fillCoordsMap()
-  {
-    if (freeMode)
-    {
-      getPlayerLocationsFreeMode();
-    }
-    else
-    {
-      getPlayerLocationsFixedMode();
-    }
-
-    for (SimonPlayer simonPlayer : simonGame.getPlayerList())
-    {
-      Coords coords = getNextFreePlatform(simonPlayer);
-
-      coordsMap.replace(coords, simonPlayer);
-    }
-
-    if (!havePlayersEnoughSpace())
-    {
-      return PlatformError.PlayerNotEnoughFreeBlocks;
-    }
-
-    return PlatformError.None;
-  }
-
-  // Fills coordslist
-  private void getPlayerLocationsFreeMode()
-  {
-    for (SimonPlayer simonPlayer : simonGame.getPlayerList())
-    {
-      Coords gameCoords = getPlayerLocationFreeMode(simonPlayer);
-
-      coordsMap.put(gameCoords, simonPlayer);
-    }
-  }
-
-  // Fills coordslist
-  private void getPlayerLocationsFixedMode()
-  {
-    ListIterator<SimonPlayer> simonPlayerListIterator = simonGame.getPlayerList().listIterator();
-
-    LocationHelper.CardinalDirection simonDirection = LocationHelper.getCardinalDirection(simon);
-
-    for (int i = 0; i < 3; i++)
-    {
-      for (int c = 0; c < 4; c++)
-      {
-        // Formulas that calculate relative distance of fixed player position relative to Simons position
-        int x = 6 - (i * 2);
-        int y = 0;
-        int z = -3 + c * 2;
-
-        Coords newCoords = new Coords(x, y, z);
-
-        LocationHelper.adjustRelativePositionToPlayer(simonDirection, newCoords);
-
-        if (simonPlayerListIterator.hasNext())
-        {
-          coordsMap.put(newCoords, simonPlayerListIterator.next());
-        }
-        else
-        {
-          coordsMap.put(newCoords, null);
-        }
-      }
-    }
-  }
-
-  private void setGameLocations()
-  {
-    // For now, the player will, regardless of position, have its gameLocation facing the opposite direction of simon
-    float yaw = LocationHelper.mirrorYaw(simon.getGameLocation().getYaw());
-
-    for (Coords coords : coordsMap.keySet())
-    {
-      SimonPlayer simonPlayer = coordsMap.get(coords);
-
-      if (simonPlayer != null)
-      {
-        setPlayerGameLocation(yaw, coords, coordsMap.get(coords));
-      }
-    }
-  }
-
-  private void saveChangedBlocks()
-  {
-    saveChangedBlock(simon);
-
-    for (SimonPlayer simonPlayer : simonGame.getPlayerList())
-    {
-      saveChangedBlock(simonPlayer);
-    }
-  }
-
   private void saveChangedBlock(SimonPlayer simonPlayer)
   {
-    Coords coords = new Coords(simonPlayer.getGameLocation());
+    Location location = simonPlayer.getGameLocation().clone();
 
-    coords.subtract(0, 1, 0);
+    location.subtract(0, 1, 0);
 
     for (int k = 0; k < 3; k++)
     {
-      Block block = coords.getLocation(simon.getWorld()).getBlock();
+      Block block = location.getBlock();
 
-      simonPlayer.getOldBlocks().put(block.getType(), block.getData());
+      simonPlayer.getSavedBlocks().put(block.getType(), block.getData());
 
-      coords.add(0, 1, 0);
+      location.add(0, 1, 0);
     }
   }
 
-  private void setPlayerGameLocation(float yaw, Coords coords, SimonPlayer simonPlayer)
+  private void setPlayerGameLocation(Coords coords, SimonPlayer simonPlayer)
   {
-    Location location = simon.getGameLocation().getBlock().getLocation();
+    Location location = simon.getGameLocation().clone();
 
-    // Get middle of block
-    location.add(0.5, 0, 0.5);
-
-    // Set Head-"height"
-    location.setPitch(0.5f);
+    // For now, the player will, regardless of position, have its gameLocation facing the opposite direction of simon
+    float yaw = LocationHelper.mirrorYaw(simon.getGameLocation().getYaw());
 
     // Set Head/Body-Rotation
     location.setYaw(yaw);
@@ -299,18 +201,6 @@ public class PlatformGenerator
     simonPlayer.setGameLocation(location);
   }
 
-  private boolean havePlayersEnoughSpace()
-  {
-    for (Coords coords : coordsMap.keySet())
-    {
-      if (coordsMap.get(coords) != null)
-      {
-        playerHasSpace(coords);
-      }
-    }
-    return true;
-  }
-
   private boolean playerHasSpace(Coords coords)
   {
     ArrayList<Coords> coordsToCheck = new ArrayList<>();
@@ -319,40 +209,14 @@ public class PlatformGenerator
 
     for (Coords checkCoords : coordsCheckList)
     {
-      playerCoords = coords.copyByValue();
+      playerCoords = coords.clone();
 
       playerCoords.add(checkCoords);
 
-      coordsToCheck.add(playerCoords.copyByValue());
+      coordsToCheck.add(playerCoords.clone());
     }
 
-    return LocationHelper.blocksAreFree(simon.getGameLocation(), coordsCheckList);
-  }
-
-  private void setSimonGameLocation()
-  {
-    Location simonLocation = simon.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
-
-    simonLocation.setPitch(0.5f); // Head is looking to the front
-
-    // Rounding the yaw of Simon to one of the 4 cardinal points
-    simonLocation.setYaw(LocationHelper.roundYaw(simon.getLocation().getYaw()));
-
-    // After everything is configured, set the gamelocation for simon
-    simon.setGameLocation(simonLocation);
-  }
-
-  // A "platform" includes all blocks generated for a Simon Says Game
-  private void generatePlatform()
-  {
-    // Generates the platform for simon
-    setPlayerBlocks(simon.getGameLocation(), Material.DIAMOND_BLOCK);
-
-    // Generates the platform for the players
-    for (SimonPlayer simonPlayer : simonGame.getPlayerList())
-    {
-      setPlayerBlocks(simonPlayer.getGameLocation(), Material.GOLD_BLOCK);
-    }
+    return LocationHelper.blocksAreFree(simon.getGameLocation(), coordsToCheck);
   }
 
   private void setPlayerBlocks(Location absoluteLocation, Material material)
@@ -369,6 +233,19 @@ public class PlatformGenerator
 
       LocationHelper.setBlock(simon.getGameLocation(), absoluteCoords, Material.AIR, false);
     }
+  }
+
+  private void setSimonGameLocation()
+  {
+    Location simonLocation = simon.getLocation().getBlock().getLocation().add(0.5, 0, 0.5);
+
+    simonLocation.setPitch(0.5f); // Head is looking to the front
+
+    // Rounding the yaw of Simon to one of the 4 cardinal points
+    simonLocation.setYaw(LocationHelper.roundYaw(simon.getLocation().getYaw()));
+
+    // After everything is configured, set the gamelocation for simon
+    simon.setGameLocation(simonLocation);
   }
 
   private boolean hasSimonEnoughSpace()

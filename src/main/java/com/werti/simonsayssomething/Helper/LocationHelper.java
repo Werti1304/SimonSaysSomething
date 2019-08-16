@@ -115,7 +115,7 @@ public class LocationHelper
 
     adjustRelativePositionToPlayer(cardinalDirection, coords);
 
-    Coords teleportCoords = coords.copyByValue();
+    Coords teleportCoords = coords.clone();
 
     teleportCoords.add(startLocation);
 
@@ -147,7 +147,7 @@ public class LocationHelper
 
   public static void setBlock(Location startLocation, Coords coords, Material material, boolean relativeCoords)
   {
-    Coords absoluteCoords = coords.copyByValue();
+    Coords absoluteCoords = coords.clone();
 
     // Get absolute Coords
     if (relativeCoords)
@@ -194,7 +194,7 @@ public class LocationHelper
 
   public static boolean blockIsFree(Location startLocation, Coords coords)
   {
-    Coords block = coords.copyByValue();
+    Coords block = coords.clone();
     // Add the locations so the block-position is absolute
     block.add(startLocation);
 
