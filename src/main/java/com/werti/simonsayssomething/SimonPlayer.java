@@ -74,9 +74,9 @@ public class SimonPlayer
     return savedBlocks;
   }
 
-  public static void sendMessage(CommandSender player, StrRes.SimonError simonGameError)
+  public static void sendMessage(CommandSender player, StrRes.SimonError simonError)
   {
-    sendMessage(player, Stdafx.errorTextColor + simonGameError.getError());
+    sendMessage(player, Stdafx.errorTextColor + simonError.getError());
   }
 
   public void playerLeave(boolean silent, boolean forced)

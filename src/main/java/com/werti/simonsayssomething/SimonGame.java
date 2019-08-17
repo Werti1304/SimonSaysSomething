@@ -162,7 +162,7 @@ public class SimonGame
 
     if (platformError != StrRes.PlatformError.None)
     {
-      simon.sendMessage(platformError.getError());
+      simon.sendMessage(platformError);
       return;
     }
 
@@ -176,13 +176,15 @@ public class SimonGame
   {
     // Todo: If check > 0 player in game
 
+    // Check if the gamestate changes during the start (Timer running)
     if (gameState != GameState.InProgress)
     {
       broadcast(StrRes.SimonGameError.CouldntStartGame);
-      //TODO: Dispand game  here
+
+      endGame();
+
       return;
     }
-
 
     broadcast("The Game has started! Simon says listen to me!");
   }

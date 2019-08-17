@@ -55,6 +55,8 @@ public class PlatformGenerator
   // when nothing went wrong, generates the platform
   PlatformError execute()
   {
+    PlatformError platformError;
+
     if (!hasSimonEnoughSpace())
     {
       return PlatformError.SimonNotEnoughFreeBlocks;
@@ -62,7 +64,11 @@ public class PlatformGenerator
 
     setSimonGameLocation();
 
-    saveChangedBlock(simon);
+    platformError = saveChangedBlock(simon);
+    if (platformError != PlatformError.None)
+    {
+      return platformError;
+    }
 
     // Generates the platform for simon
     setPlayerBlocks(simon.getGameLocation(), Material.DIAMOND_BLOCK);
@@ -70,11 +76,10 @@ public class PlatformGenerator
     // Adds platform and locations for every player currently in the game
     for (SimonPlayer simonPlayer : simonGame.getPlayerList())
     {
-      PlatformError error = addPlayer(simonPlayer);
-
-      if (error != PlatformError.None)
+      platformError = addPlayer(simonPlayer);
+      if (platformError != PlatformError.None)
       {
-        return error;
+        return platformError;
       }
     }
 
@@ -99,7 +104,11 @@ public class PlatformGenerator
 
     setPlayerGameLocation(playerCoords, simonPlayer);
 
-    saveChangedBlock(simonPlayer);
+    PlatformError platformError = saveChangedBlock(simonPlayer);
+    if (platformError != PlatformError.None)
+    {
+      return platformError;
+    }
 
     setPlayerBlocks(simonPlayer.getGameLocation(), Material.GOLD_BLOCK);
 
@@ -168,20 +177,31 @@ public class PlatformGenerator
     return new Coords(gameLocation);
   }
 
-  private void saveChangedBlock(SimonPlayer simonPlayer)
+  private PlatformError saveChangedBlock(SimonPlayer simonPlayer)
   {
     Location location = simonPlayer.getGameLocation().clone();
 
     location.subtract(0, 1, 0);
 
+    // Reset the saved blocks before the procedure
+    simonPlayer.getSavedBlocks().clear();
+
     for (int k = 0; k < 3; k++)
     {
       Block block = location.getBlock();
+
+      Material material = block.getType();
+
+      if (material == Material.DOUBLE_PLANT)
+      {
+        return PlatformError.InvalidMaterialSave;
+      }
 
       simonPlayer.getSavedBlocks().put(block.getType(), block.getData());
 
       location.add(0, 1, 0);
     }
+    return PlatformError.None;
   }
 
   private void setPlayerGameLocation(Coords coords, SimonPlayer simonPlayer)

@@ -238,6 +238,7 @@ public class StrRes
         + " blocks above Simon!"),
     PlayerNotEnoughFreeBlocks("There isn't enough space for all players!"),
     PlayerMaximumReached("The game is full!"),
+    InvalidMaterialSave("One or more blocks are invalid. Please start your game from another position!"),
     None("");
 
     private String error;
