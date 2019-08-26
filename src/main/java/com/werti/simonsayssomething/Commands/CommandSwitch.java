@@ -3,7 +3,6 @@ package com.werti.simonsayssomething.Commands;
 import com.werti.Stdafx;
 import com.werti.StrRes;
 import com.werti.StrRes.SimonGameError;
-import com.werti.simonsayssomething.BukkitRunnables.Timer;
 import com.werti.simonsayssomething.Helper.ChatHelper;
 import com.werti.simonsayssomething.SimonGame;
 import com.werti.simonsayssomething.SimonPlayer;
@@ -225,20 +224,7 @@ public class CommandSwitch
 
   private static void start(SimonGame simonGame)
   {
-    if (simonGame.getGameState() != SimonGame.GameState.WaitingForStart)
-    {
-      simonGame.getSimon().sendMessage(SimonGameError.InvalidStateForStart);
-      return;
-    }
-    simonGame.setGameState(SimonGame.GameState.InProgress);
-
-    simonGame.getSimon().sendMessage("Starting game now!");
-
-    Timer timer = new Timer(simonGame, Timer.Action.StartGame, 5);
-
-    simonGame.teleportToGame();
-
-    timer.execute();
+    simonGame.start();
   }
 
   public static void listPlayers(SimonGame simonGame, SimonPlayer sender)

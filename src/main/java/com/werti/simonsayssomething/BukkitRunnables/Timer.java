@@ -45,7 +45,7 @@ public class Timer
           switch (action)
           {
             case StartGame:
-              simonGame.start();
+              simonGame.startSequenceAfterTimer();
               break;
           }
           running = false;

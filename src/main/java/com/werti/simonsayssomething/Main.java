@@ -5,6 +5,8 @@ import com.werti.StrRes;
 import com.werti.simonsayssomething.EventHandler.CommandExecuterSimon;
 import com.werti.simonsayssomething.EventHandler.GameHandler;
 import com.werti.simonsayssomething.EventHandler.MenuHandler;
+import com.werti.simonsayssomething.GUI.SimonLobbyMenu;
+import com.werti.simonsayssomething.GUI.SimonMenuFixture;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -31,14 +33,20 @@ public class Main extends JavaPlugin
 
     Stdafx.plugin = this;
 
-    Stdafx.simonMenu = new SimonMenu();
-
     Stdafx.bukkitScheduler = Bukkit.getScheduler();
+
+    Stdafx.simonLobbyMenu = new SimonLobbyMenu();
 
     this.getCommand("simon").setExecutor(new CommandExecuterSimon());
 
     Stdafx.server.getPluginManager().registerEvents(new MenuHandler(), this);
     Stdafx.server.getPluginManager().registerEvents(new GameHandler(), this);
+
+    // Add events for menus (inventories)
+    for (SimonMenuFixture simonMenuFixture : SimonMenuFixture.getCurrentSimonMenuFixtures())
+    {
+      Stdafx.server.getPluginManager().registerEvents(simonMenuFixture, this);
+    }
   }
 
   @Override

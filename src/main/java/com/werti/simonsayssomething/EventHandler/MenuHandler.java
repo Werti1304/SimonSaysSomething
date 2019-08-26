@@ -1,16 +1,9 @@
 package com.werti.simonsayssomething.EventHandler;
 
-import com.werti.Stdafx;
-import com.werti.simonsayssomething.SimonGame;
-import com.werti.simonsayssomething.SimonMenu;
-import com.werti.simonsayssomething.SimonPlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
+import com.werti.simonsayssomething.GUI.SimonMenuFixture;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -34,15 +27,18 @@ public class MenuHandler implements Listener
       return;
     }
 
-    if (!SimonMenu.isMenu(item))
-    {
-      return;
-    }
+    SimonMenuFixture simonMenuFixture = SimonMenuFixture.getByItem(item);
 
-    // Opens Simon Says' Gui
-    event.getPlayer().openInventory(Stdafx.simonMenu.getInventory());
+    // If the menu the players is holding exists, open it
+    // No isMenu() function of any kind was used because we would need to iterate 2x through the menu-list to open the menu
+    // and this event should be at least optimized to some level
+    if (simonMenuFixture != null)
+    {
+      simonMenuFixture.openInventory(event.getPlayer());
+    }
   }
 
+  /*
   @EventHandler
   public void onInventoryClick(InventoryClickEvent event)
   {
@@ -96,8 +92,8 @@ public class MenuHandler implements Listener
     int slot = event.getSlot();
 
     // Todo: "Simon.print()" or something like this
-    Bukkit.broadcastMessage("Simon says " + Stdafx.simonMenu.getInvSorting().get(slot).getChatMessage());
+    //Bukkit.broadcastMessage("Simon says " + Stdafx.simonMenu.getInvSorting().get(slot).getChatMessage());
 
     event.getWhoClicked().closeInventory();
-  }
+  } */
 }

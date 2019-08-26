@@ -2,7 +2,9 @@ package com.werti.simonsayssomething;
 
 import com.werti.Stdafx;
 import com.werti.StrRes;
+import com.werti.simonsayssomething.BukkitRunnables.Timer;
 import com.werti.simonsayssomething.Helper.ChatHelper;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -32,12 +34,7 @@ public class SimonGame
 
     this.simon.sendMessage("You're now Simon! Here, have a piece of paper!");
 
-    ItemStack menu = SimonMenu.getMenuItem();
-
-    int slot = Stdafx.MenuSlotNumber;
-
-    // Gives the player the item in the specified slot
-    this.simon.getInventory().setItem(slot, menu);
+    Stdafx.simonLobbyMenu.giveToPlayer(simon.getPlayer(), Stdafx.defaultMenuSlot);
 
     setGameState(GameState.WaitingForInit);
   }
@@ -174,6 +171,24 @@ public class SimonGame
 
   public void start()
   {
+    if (gameState != SimonGame.GameState.WaitingForStart)
+    {
+      simon.sendMessage(StrRes.SimonGameError.InvalidStateForStart);
+      return;
+    }
+    setGameState(SimonGame.GameState.InProgress);
+
+    simon.sendMessage("Starting game now!");
+
+    Timer timer = new Timer(this, Timer.Action.StartGame, 5);
+
+    teleportToGame();
+
+    timer.execute();
+  }
+
+  public void startSequenceAfterTimer()
+  {
     // Todo: If check > 0 player in game
 
     // Check if the gamestate changes during the start (Timer running)
@@ -216,6 +231,8 @@ public class SimonGame
     currentSimonGames.remove(this);
 
     simon.playerLeave(true, false);
+
+    simon.getInventory().setItem(Stdafx.defaultMenuSlot, new ItemStack(Material.AIR));
 
     broadcast("The game has ended!");
 
