@@ -43,10 +43,10 @@ public class ChatHelper
   {
     if (command == StrRes.Command.StartNewGame)
     {
-      return "/" + ChatHelper.highlightString(StrRes.Command.StartNewGame.getCommand());
+      return Stdafx.textColor + "/" + ChatHelper.highlightString(StrRes.Command.StartNewGame.getCommand());
     }
 
-    return "/" + Stdafx.highlightColor + getCommand(command);
+    return Stdafx.textColor + "/" + Stdafx.highlightColor + getCommand(command);
   }
 
   public static String getFullCommand(StrRes.AdminCommand command)

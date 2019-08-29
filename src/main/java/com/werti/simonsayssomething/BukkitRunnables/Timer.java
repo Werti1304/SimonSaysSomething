@@ -52,9 +52,16 @@ public class Timer
         }
         else
         {
-          simonGame.broadcast(Stdafx.highlightColor + timeInSecondsCounter + Stdafx.textColor + "...");
-          timeInSecondsCounter--;
-          Timer.this.run();
+          if (simonGame.getGameState() == SimonGame.GameState.InProgress)
+          {
+            simonGame.broadcast(Stdafx.highlightColor + timeInSecondsCounter + Stdafx.textColor + "...");
+            timeInSecondsCounter--;
+            Timer.this.run();
+          }
+          else
+          {
+            running = false;
+          }
         }
       }
     }, Stdafx.Tickrate);

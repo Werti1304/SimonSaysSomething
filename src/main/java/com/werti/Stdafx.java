@@ -43,4 +43,6 @@ public class Stdafx
   public static final Material initGameMaterial = Material.CLAY_BRICK;
   public static final Material startGameMaterial = Material.GOLD_INGOT;
   public static final Material endGameMaterial = Material.NETHER_BRICK_ITEM;
+  public static final Material inviteGameMaterial = Material.PAPER;
+  public static final Material kickGameMaterial = Material.BARRIER;
 }

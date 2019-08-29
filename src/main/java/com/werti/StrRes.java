@@ -214,6 +214,7 @@ public class StrRes
     SimonGameNotFound("I couldn't find this game!"),
     CouldntStartGame("Couldn't Start game! Has Simon left?"),
     GameAlreadyStarted("The game has already started!"),
+    NotImplemented("Not implemented yet!"),
     LeaveGameAsSimon("If you wish to end the game and thus, leave, type /simon says " + Command.EndGame.getCommand()),
     MaximumPlayersReached("The maximum of " + ChatHelper.highlightString(Integer.toString(Stdafx.PlayerLimit)));
 

@@ -201,6 +201,7 @@ public class SimonGame
       return;
     }
 
+    teleportToGame();
     broadcast("The Game has started! Simon says listen to me!");
   }
 
@@ -212,7 +213,7 @@ public class SimonGame
    */
   void playerLeave(SimonPlayer simonPlayer, boolean silent)
   {
-    if (gameState == GameState.InProgress || gameState == GameState.WaitingForStart)
+    if (gameState == GameState.InProgress || gameState == GameState.WaitingForStart || gameState == GameState.Ended)
     {
       platformGenerator.removePlayer(simonPlayer);
     }
@@ -228,6 +229,8 @@ public class SimonGame
 
   public void endGame()
   {
+    setGameState(GameState.Ended);
+
     currentSimonGames.remove(this);
 
     simon.playerLeave(true, false);
@@ -235,7 +238,6 @@ public class SimonGame
     simon.getInventory().setItem(Stdafx.defaultMenuSlot, new ItemStack(Material.AIR));
 
     broadcast("The game has ended!");
-
     if (!playerList.isEmpty())
     {
       // Using a manual loops because lists don't allow changing while being iterated
@@ -329,6 +331,7 @@ public class SimonGame
     None,
     WaitingForInit,
     WaitingForStart,
-    InProgress
+    InProgress,
+    Ended
   }
 }

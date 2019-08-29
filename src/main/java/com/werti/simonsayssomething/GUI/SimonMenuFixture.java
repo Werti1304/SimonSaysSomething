@@ -14,6 +14,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -21,7 +22,8 @@ import java.util.Objects;
 
 public abstract class SimonMenuFixture implements InventoryHolder, Listener
 {
-  private static ArrayList<SimonMenuFixture> currentSimonMenuFixtures = new ArrayList<>();
+  private static ArrayList<SimonMenuFixture> simonMenuList = new ArrayList<>();
+
   private final Inventory inventory;
   private String title;
   private SimonSaysItemSafe menuOpeningItem;
@@ -32,20 +34,28 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
     this.menuOpeningItem = menuOpeningItem;
     this.title = title;
 
-    currentSimonMenuFixtures.add(this);
+    simonMenuList.add(this);
 
     initializeItems();
   }
 
-  public static ArrayList<SimonMenuFixture> getCurrentSimonMenuFixtures()
+  public static ArrayList<SimonMenuFixture> getSimonMenuList()
   {
-    return currentSimonMenuFixtures;
+    return simonMenuList;
   }
 
+  /**
+   * Get a menu (/inventory) by the item that's supposed to open it
+   * (e.g. get the EnderChest-Menu by right-clicking the EnderChest-Item)
+   * Returns null when no associated menu is found (which is the case most of the time)
+   *
+   * @param item Item to be checked
+   * @return SimonMenu associated with this item
+   */
   @Nullable
   public static SimonMenuFixture getByItem(ItemStack item)
   {
-    for (SimonMenuFixture simonMenuFixture : currentSimonMenuFixtures)
+    for (SimonMenuFixture simonMenuFixture : simonMenuList)
     {
       if (simonMenuFixture.equalsItemStack(item))
       {
@@ -62,10 +72,9 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
 
   /**
    * What should happen when an item was clicked
-   * <p>
    * Event-Cancelling has to be set to true in order to make the item movable
    */
-  abstract void itemClick(InventoryClickEvent clickEvent, SimonGame simonGame, SimonPlayer simonPlayer);
+  abstract void itemClick(InventoryClickEvent clickEvent, SimonPlayer simonPlayer);
 
   /**
    * Event when something in the inventory is clicked upon
@@ -91,7 +100,6 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
     SimonPlayer simonPlayer = SimonPlayer.get(player);
 
     clickEvent.setCancelled(true);
-    player.closeInventory();
 
     // Check if the player even is in a game
     if (simonPlayer == null)
@@ -100,7 +108,7 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
       return;
     }
 
-    SimonGame gameofPlayer = SimonGame.getGameByPlayer(simonPlayer);
+    SimonGame gameofPlayer = simonPlayer.getSimonGame();
 
     // Check if the player is Simon
     if (simonPlayer != gameofPlayer.getSimon())
@@ -116,7 +124,9 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
 
     clickEvent.setCancelled(true);
 
-    itemClick(clickEvent, gameofPlayer, simonPlayer);
+    itemClick(clickEvent, simonPlayer);
+
+    refreshMenu(simonPlayer.getPlayer());
   }
 
   @Override
@@ -168,9 +178,27 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
     player.openInventory(this.getInventory());
   }
 
+
+  /**
+   * Close inventory of a player after 1 tick
+   * Mainly used for Events that don't support closing the inventory in the same tick
+   *
+   * @param player Player which inventory should be closed
+   */
+  void closeInventoryNextTick(Player player)
+  {
+    new BukkitRunnable()
+    {
+      @Override
+      public void run()
+      {
+        player.closeInventory();
+      }
+    }.runTaskLater(Stdafx.plugin, 1); // 1 Tick / Lowest delay possible
+  }
+
   /**
    * Give item necessary to open the menu to a player
-   *
    * @param player Player to give the menu to
    * @param slot   Slot where the menu-opening-item should be placed into
    */
@@ -179,9 +207,20 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
     player.getInventory().setItem(slot, menuOpeningItem);
   }
 
+  /**
+   * Displays newly added/changed items by simple opening the updated inventory
+   *
+   * @param player which players' inventory should be updated
+   */
+  void refreshMenu(Player player)
+  {
+    // Simple opening instead of closing then opening prevents the cursor to reset to the center
+    openInventory(player);
+  }
+
   public void delete()
   {
-    currentSimonMenuFixtures.remove(this);
+    simonMenuList.remove(this);
   }
 
   public String getTitle()

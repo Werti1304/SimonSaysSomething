@@ -43,7 +43,7 @@ public class Main extends JavaPlugin
     Stdafx.server.getPluginManager().registerEvents(new GameHandler(), this);
 
     // Add events for menus (inventories)
-    for (SimonMenuFixture simonMenuFixture : SimonMenuFixture.getCurrentSimonMenuFixtures())
+    for (SimonMenuFixture simonMenuFixture : SimonMenuFixture.getSimonMenuList())
     {
       Stdafx.server.getPluginManager().registerEvents(simonMenuFixture, this);
     }
