@@ -213,6 +213,7 @@ public class StrRes
     PlayerNotFound("I couldn't find this player on your server!"),
     SimonGameNotFound("I couldn't find this game!"),
     CouldntStartGame("Couldn't Start game! Has Simon left?"),
+    GameAlreadyInitialized("The game was already initialized!"),
     GameAlreadyStarted("The game has already started!"),
     NotImplemented("Not implemented yet!"),
     LeaveGameAsSimon("If you wish to end the game and thus, leave, type /simon says " + Command.EndGame.getCommand()),

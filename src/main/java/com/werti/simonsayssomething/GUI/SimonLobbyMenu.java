@@ -7,13 +7,14 @@ import com.werti.simonsayssomething.SimonGame;
 import com.werti.simonsayssomething.SimonPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class SimonLobbyMenu extends SimonMenuFixture
 {
   public SimonLobbyMenu()
   {
-    super(new SimonSaysItemSafe(Material.GOLD_INGOT, "Simon Says Menu"), 9, "Simon Says Menu");
+    super(new SimonSaysItemSafe(Material.GOLD_INGOT, "Simon Lobby Menu"), 9, "Simon Lobby Menu");
   }
 
   @Override
@@ -34,7 +35,7 @@ public class SimonLobbyMenu extends SimonMenuFixture
     setItem(new SimonSaysItem(Stdafx.endGameMaterial, ChatColor.DARK_BLUE + "End Game",
                               ChatHelper.getFullCommand(StrRes.Command.EndGame)), 6);
 
-    setItem(new SimonSaysItem(Stdafx.kickGameMaterial, ChatColor.RED.toString() + ChatColor.ITALIC + "Kick Players",
+    setItem(new SimonSaysItem(Stdafx.toggleGameMaterial, ChatColor.BLUE.toString() + ChatColor.ITALIC + "Toggle Mode",
                               ChatHelper.getFullCommand(StrRes.Command.KickPlayer)), 8);
 
     addPlaceHolders();
@@ -62,10 +63,25 @@ public class SimonLobbyMenu extends SimonMenuFixture
       simonGame.endGame();
       closeInventory = true;
     }
-    else if (clickedMaterial == Stdafx.inviteGameMaterial || clickedMaterial == Stdafx.kickGameMaterial)
+    else if (clickedMaterial == Stdafx.inviteGameMaterial)
     {
       // For now, when the players clicks on "Invite players", we just display him the necessary command
       simonPlayer.sendMessage(StrRes.SimonGameError.NotImplemented);
+    }
+    else if (clickedMaterial == Stdafx.toggleGameMaterial)
+    {
+      if (simonGame.getGameState() == SimonGame.GameState.WaitingForInit)
+      {
+        simonGame.setFreeMode(!simonGame.isFreeMode());
+        simonPlayer.sendMessage(
+            "Game set to " + Stdafx.highlightColor + (simonGame.isFreeMode() ? "Free-Mode" : "Fixed-Mode"));
+        simonPlayer.getPlayer().playSound(simonPlayer.getLocation(), Sound.ANVIL_LAND, 0.5f, 1.0f);
+      }
+      else
+      {
+        simonPlayer.sendMessage(StrRes.SimonGameError.GameAlreadyInitialized);
+        closeInventory = true;
+      }
     }
 
     if (closeInventory)

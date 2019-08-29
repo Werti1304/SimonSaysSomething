@@ -1,5 +1,6 @@
 package com.werti;
 
+import com.werti.simonsayssomething.GUI.SimonGameMenu;
 import com.werti.simonsayssomething.GUI.SimonLobbyMenu;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -39,10 +40,11 @@ public class Stdafx
   public static String adminPermission = "SimonSaysSomething.Admin";
   // All openable menus
   public static SimonLobbyMenu simonLobbyMenu;
+  public static final Material toggleGameMaterial = Material.ANVIL;
 
   public static final Material initGameMaterial = Material.CLAY_BRICK;
   public static final Material startGameMaterial = Material.GOLD_INGOT;
   public static final Material endGameMaterial = Material.NETHER_BRICK_ITEM;
   public static final Material inviteGameMaterial = Material.PAPER;
-  public static final Material kickGameMaterial = Material.BARRIER;
+  public static SimonGameMenu simonGameMenu;
 }

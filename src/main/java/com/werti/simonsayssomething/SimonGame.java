@@ -202,6 +202,7 @@ public class SimonGame
     }
 
     teleportToGame();
+    Stdafx.simonGameMenu.giveToPlayer(simon.getPlayer(), 7);
     broadcast("The Game has started! Simon says listen to me!");
   }
 
@@ -319,6 +320,11 @@ public class SimonGame
   public void setGameState(GameState gameState)
   {
     this.gameState = gameState;
+  }
+
+  public boolean isFreeMode()
+  {
+    return freeMode;
   }
 
   public void setFreeMode(boolean freeMode)

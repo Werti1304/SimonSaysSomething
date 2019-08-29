@@ -24,7 +24,7 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
 {
   private static ArrayList<SimonMenuFixture> simonMenuList = new ArrayList<>();
 
-  private final Inventory inventory;
+  private Inventory inventory;
   private String title;
   private SimonSaysItemSafe menuOpeningItem;
 
@@ -77,56 +77,25 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
   abstract void itemClick(InventoryClickEvent clickEvent, SimonPlayer simonPlayer);
 
   /**
-   * Event when something in the inventory is clicked upon
+   * TODO: Evaluate if adding every player that has a menuOpeningItem to a list and just removing from there is a good idea
+   * Removes all menus from everyone on the server
+   * This function has to get every item of everyone on the server (for now), so use with caution
    */
-  @EventHandler
-  public void onInventoryClick(InventoryClickEvent clickEvent)
+  public static void removeAllMenus()
   {
-    // Check if it's the right inventory
-    if (Stdafx.simonLobbyMenu.getInventory().getHolder() != clickEvent.getInventory().getHolder())
+    for (Player player : Stdafx.server.getOnlinePlayers())
     {
-      return;
+      for (ItemStack itemStack : player.getInventory().getContents())
+      {
+        for (SimonMenuFixture simonMenuFixture : SimonMenuFixture.getSimonMenuList())
+        {
+          if (simonMenuFixture.equalsItemStack(itemStack))
+          {
+            player.getInventory().remove(itemStack);
+          }
+        }
+      }
     }
-
-    HumanEntity humanEntity = clickEvent.getWhoClicked();
-
-    // Check if a player clicked
-    if (!(humanEntity instanceof Player))
-    {
-      return;
-    }
-
-    Player player = (Player) humanEntity;
-    SimonPlayer simonPlayer = SimonPlayer.get(player);
-
-    clickEvent.setCancelled(true);
-
-    // Check if the player even is in a game
-    if (simonPlayer == null)
-    {
-      SimonPlayer.sendMessage(player, "You're not in a game!");
-      return;
-    }
-
-    SimonGame gameofPlayer = simonPlayer.getSimonGame();
-
-    // Check if the player is Simon
-    if (simonPlayer != gameofPlayer.getSimon())
-    {
-      simonPlayer.sendMessage("You're not Simon!");
-      return;
-    }
-
-    if (Stdafx.BackgroundMaterial == clickEvent.getCurrentItem().getType())
-    {
-      return;
-    }
-
-    clickEvent.setCancelled(true);
-
-    itemClick(clickEvent, simonPlayer);
-
-    refreshMenu(simonPlayer.getPlayer());
   }
 
   @Override
@@ -267,5 +236,66 @@ public abstract class SimonMenuFixture implements InventoryHolder, Listener
 
     // Check if the lore is equal to the menu uuid
     return Objects.equals(lore, menuOpeningItem.getUUID().toString());
+  }
+
+  /**
+   * Event when something in the inventory is clicked upon
+   */
+  @EventHandler
+  public void onInventoryClick(InventoryClickEvent clickEvent)
+  {
+    boolean validMenu = false;
+
+    // Check if it's the right inventory
+    for (SimonMenuFixture simonMenuFixture : SimonMenuFixture.getSimonMenuList())
+    {
+      if (simonMenuFixture.getInventory().getHolder() != clickEvent.getInventory().getHolder())
+      {
+        validMenu = true;
+      }
+    }
+
+    if (!validMenu)
+    {
+      return;
+    }
+
+    HumanEntity humanEntity = clickEvent.getWhoClicked();
+
+    // Check if a player clicked
+    if (!(humanEntity instanceof Player))
+    {
+      return;
+    }
+
+    Player player = (Player) humanEntity;
+    SimonPlayer simonPlayer = SimonPlayer.get(player);
+
+    clickEvent.setCancelled(true);
+
+    // Check if the player even is in a game
+    if (simonPlayer == null)
+    {
+      SimonPlayer.sendMessage(player, "You're not in a game!");
+      return;
+    }
+
+    SimonGame gameofPlayer = simonPlayer.getSimonGame();
+
+    // Check if the player is Simon
+    if (simonPlayer != gameofPlayer.getSimon())
+    {
+      simonPlayer.sendMessage("You're not Simon!");
+      return;
+    }
+
+    if (Stdafx.BackgroundMaterial == clickEvent.getCurrentItem().getType())
+    {
+      return;
+    }
+
+    clickEvent.setCancelled(true);
+
+    itemClick(clickEvent, simonPlayer);
   }
 }

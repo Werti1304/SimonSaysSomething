@@ -5,6 +5,7 @@ import com.werti.StrRes;
 import com.werti.simonsayssomething.EventHandler.CommandExecuterSimon;
 import com.werti.simonsayssomething.EventHandler.GameHandler;
 import com.werti.simonsayssomething.EventHandler.MenuHandler;
+import com.werti.simonsayssomething.GUI.SimonGameMenu;
 import com.werti.simonsayssomething.GUI.SimonLobbyMenu;
 import com.werti.simonsayssomething.GUI.SimonMenuFixture;
 import org.bukkit.Bukkit;
@@ -25,6 +26,7 @@ public class Main extends JavaPlugin
   @Override
   public void onEnable()
   {
+    //TODO: Add Logging to the enabling steps
     setDefaultConfigValues();
 
     getConfigValues();
@@ -36,6 +38,7 @@ public class Main extends JavaPlugin
     Stdafx.bukkitScheduler = Bukkit.getScheduler();
 
     Stdafx.simonLobbyMenu = new SimonLobbyMenu();
+    Stdafx.simonGameMenu = new SimonGameMenu();
 
     this.getCommand("simon").setExecutor(new CommandExecuterSimon());
 
@@ -62,6 +65,9 @@ public class Main extends JavaPlugin
         simonGame.getPlatformGenerator().removePlayer(simonPlayer);
       }
     }
+
+    // Remove all menus from everyone on the server
+    SimonMenuFixture.removeAllMenus();
   }
 
   // Initialization method, can only be used in onEnable()
